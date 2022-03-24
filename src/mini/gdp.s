@@ -9,7 +9,7 @@
         ;; copyright (c) 2022 tomaz stih
         ;;
 		;; 22.03.2022    tstih
-		.module ef9367
+		.module gdp
 
 		.globl	_gdp_init
         .globl  _gdp_cls

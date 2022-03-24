@@ -13,13 +13,13 @@ OBJS	=	$(addprefix $(BUILD_DIR)/, \
 					$(patsubst %.s,%.rel,$(S_SRCS)) \
 				) \
 			)
-TARGET = libcpm3-z80
+TARGET = mavrica
 
 # Rules.
 .PHONY: all
-all:	$(BUILD_DIR)/$(TARGET).lib $(BUILD_DIR)/$(CRT0).rel
+all:	$(BUILD_DIR)/$(TARGET) $(BUILD_DIR)/$(CRT0).rel
 
-$(BUILD_DIR)/$(TARGET).lib: $(OBJS)
+$(BUILD_DIR)/$(TARGET): $(OBJS)
 	$(AR) $(ARFLAGS) $@ $^
 
 $(BUILD_DIR)/$(CRT0).rel: $(CRT0).s0
