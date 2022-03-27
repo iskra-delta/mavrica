@@ -18,7 +18,7 @@
         ;; parse command line in CP/M
 pargs::
         ld      de,#0x80                ; args start
-        ld      hl,argv                 ; argv pointers
+        ld      hl,#argv                ; argv pointers
         ;; first pointer is NULL
         xor     a
         ld      (hl),a
@@ -60,7 +60,7 @@ pargs_end:
         pop     de
         pop     hl
         or      a                       ; clear flags
-        sbc     de,hl                   ; compare
+        sbc     hl,de                   ; compare
         exx
         ret     z                       ; return if equal
         ;; else store arg!

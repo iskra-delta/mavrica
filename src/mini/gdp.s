@@ -31,7 +31,7 @@
 __gdp_wait_ready:
         ;; make sure GDP is free
         in      a,(EF9367_STS_NI)       ; read the status register
-        and     #EF9367_STS_READY       ; get ready flag, it's the same bit
+        and     #EF9367_STS_NI_READY    ; get ready flag, it's the same bit
         jr      z,__gdp_wait_ready
         ret
 
@@ -116,5 +116,5 @@ _gdp_init::
         ;; affect:  af
 _gdp_cls::
 		ld      a,#EF9367_CMD_CLS
-		call    ef9367_cmd
+		call    __gdp_exec_cmd
         ret

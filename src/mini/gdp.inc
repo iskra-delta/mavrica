@@ -36,6 +36,11 @@
         .equ    EF9367_CR2_SOLID,       0b00    ; solid vector type
 
 
+        ;; --- 0x23 - RW: character size --------------------------------------
+        ;; low nibble is scaling on x, high nibble is scaling on y)
+        .equ    EF9367_CH_SIZE,         0x23
+
+
         ;; --- 0x25 - RW: delta x ---------------------------------------------
         .equ    EF9367_DX,              0x25
         ;; --- 0x27 - RW: delta y ---------------------------------------------
@@ -56,3 +61,6 @@
         .equ    EF9367_STS_NI,          0x2f    ; status reg. (no interrupt reset)
         .equ    EF9367_STS_NI_READY,    0x04    ; low when executing command
 
+
+        ;; --- 0x30 - R/W:PIO gr. common register -----------------------------
+        .equ    PIO_GR_CMN,             0x30

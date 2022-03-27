@@ -1,34 +1,73 @@
-# Virtual paths are all subfolders!
-DIRS	=	$(wildcard */)
-vpath %.c $(DIRS)
-vpath %.s $(DIRS)
-vpath %.h $(DIRS)
+# We only allow compilation on linux!
+ifneq ($(shell uname), Linux)
+$(error OS must be Linux!)
+endif
 
-# Source files.
-C_SRCS	=	$(wildcard *.c) $(wildcard */*.c)
-S_SRCS	=	$(wildcard *.s) $(wildcard */*.s)
-OBJS	=	$(addprefix $(BUILD_DIR)/, \
-				$(notdir \
-					$(patsubst %.c,%.rel,$(C_SRCS)) \
-					$(patsubst %.s,%.rel,$(S_SRCS)) \
-				) \
-			)
-TARGET = mavrica
+# Check if all required tools are on the system.
+REQUIRED = sdcc sdar sdasz80 sdldz80 sdobjcopy sed cpmcp
+K := $(foreach exec,$(REQUIRED),\
+    $(if $(shell which $(exec)),,$(error "$(exec) not found. Please install or add to path.")))
+
+# Global settings: folders.
+export ROOT 		=	$(realpath .)
+export BUILD_DIR	=	$(ROOT)/build
+export BIN_DIR		=	$(ROOT)/bin
+export LIB_DIR		=	$(ROOT)/lib
+export INC_DIR		=	$(ROOT)/include \
+						$(LIB_DIR)/include
+export SRC_DIR		=	$(ROOT)/src
+export DISK_DIR		=	$(ROOT)/disk
+
+# Globa settings: 8 bit tools.
+export CC			=	sdcc
+export CFLAGS		=	--std-c11 -mz80 --debug \
+						--nostdinc $(addprefix -I,$(INC_DIR))
+export AS			=	sdasz80
+export ASFLAGS		=	-xlos -g
+export AR			=	sdar
+export ARFLAGS		=	-rc
+export LD			=	sdcc
+export LDFLAGS		=	-mz80 -Wl -y --code-loc 0x100 \
+						--no-std-crt0 --nostdlib --nostdinc \
+						$(addprefix -L,$(LIB_DIR)) -p
+export OBJCOPY		=	sdobjcopy
+
+# Data segment fix (relink due to SDCC bug)
+export L2           =   sdldz80
+export L2FLAGS      =   -nf
+export L2FIX        =   sed '/-b _DATA = 0x8000/d'
+
+# Floppy disk image
+export FLOPPY		=	$(BIN_DIR)/fddb.img
 
 # Rules.
 .PHONY: all
-all:	$(BUILD_DIR)/$(TARGET) $(BUILD_DIR)/$(CRT0).rel
+all:	mkdirs $(SRC_DIR) mkdisk
 
-$(BUILD_DIR)/$(TARGET): $(OBJS)
-	$(AR) $(ARFLAGS) $@ $^
+.PHONY: $(SRC_DIR)
+$(SRC_DIR):
+	$(MAKE) -C $@
 
-$(BUILD_DIR)/$(CRT0).rel: $(CRT0).s0
-	$(AS) $(ASFLAGS) $(BUILD_DIR)/$(@F) $<
+.PHONY: mkdirs
+mkdirs:
+	# Create build dir.
+	mkdir -p $(BUILD_DIR)
+	# And bin dir.
+	mkdir -p $(BIN_DIR)
 
-$(BUILD_DIR)/%.rel:	%.s
-	$(AS) $(ASFLAGS) $(BUILD_DIR)/$(@F) $<
+.PHONY: mkdisk
+mkdisk: 
+	# Inside bin dir.
+	cp $(DISK_DIR)/diskdefs .
+	mkfs.cpm -f idpfdd -t $(FLOPPY)
+	cpmcp -f idpfdd $(FLOPPY) $(BUILD_DIR)/mavrica.com 0:mavrica.com
+	rm ./diskdefs
 
-$(BUILD_DIR)/%.rel: %.c
-	$(CC) -c -o $(BUILD_DIR)/$(@F) $< $(CFLAGS)
+.PHONY: install
+install: all
+	cp $(FLOPPY) ~/Dex/fddb.img
 
-$(BUILD_DIR)/%.rel: %.h
+.PHONY: clean
+clean:
+	rm -f -r $(BIN_DIR)
+	rm -f -r $(BUILD_DIR)
