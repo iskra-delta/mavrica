@@ -20,8 +20,8 @@ export DISK_DIR		=	$(ROOT)/disk
 
 # Globa settings: 8 bit tools.
 export CC			=	sdcc
-export CFLAGS		=	--std-c11 -mz80 --debug \
-						--nostdinc $(addprefix -I,$(INC_DIR))
+export CFLAGS		=	--std-c11 -mz80 --debug --nostdinc \
+						$(addprefix -I,$(SRC_DIR)) $(addprefix -I,$(INC_DIR))
 export AS			=	sdasz80
 export ASFLAGS		=	-xlos -g
 export AR			=	sdar

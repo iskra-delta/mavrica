@@ -17,64 +17,91 @@
         .area   _CODE
         ;; parse command line in CP/M
 pargs::
-        ld      de,#0x80                ; args start
-        ld      hl,#argv                ; argv pointers
-        ;; first pointer is NULL
+        ld      hl,#0x80                ; args start
+        ;; argv[0] is NULL
+        ld      de,#argv                ; argv pointers
         xor     a
-        ld      (hl),a
-        inc     hl
-        ld      (hl),a
-        inc     hl                      ; hl points to first "real" argv
-        ;; let de point to first char
-        ld      a,(de)                  ; get number of bytes to b
-        inc     a                       ; end
-        ld      b,a                     ; b is counter
-        inc     de                      ; de points to first char
-        push    de                      ; "remember" start of current arg
+        ld      (de),a
+        inc     de
+        ld      (de),a
+        inc     de                      ; dl points to first "real" argv
         ;; argc=1 (default)
         xor     a
         ld      (argc+1),a
         inc     a
         ld      (argc),a
+        ;; let de point to first char which is length
+        ld      a,(hl)                  ; get number of bytes to b
+        ld      b,a                     ; b is counter
+        inc     hl                      ; hl points to first char
+        ld      a,(hl)                  ; check it
+        cp      #' '                    ; skip initial space...
+        jr      nz,pargs_go 
+        inc     hl                      ; next char...
+pargs_go:
+        push    hl                      ; "remember" start of current arg
 pargs_loop:
         ;; now iterate
-        ld      a,(de)
-        cp      #0                      ; end of args?
+        ld      a,(hl)
+        ;; is it end of arguments?
+        cp      #0                      
         jr      z,pargs_end
-        cp      #' '                    ; space is next arg
-        jr      pargs_next
-        ;; if we're here it's default...
-        ;; TODO: normal
+        ;; is it end of current argument?
+        cp      #' '                    
+        jr      z,pargs_next
+        ;; if we're here it's a simple char...
+        inc     hl
         djnz    pargs_loop
-pargs_next:
-        xor     a
-        ld      (de),a
-        ;; TODO
-        djnz    pargs_loop
+        ;; if no more looping we're done
 pargs_end:
-        ;; TOOD: get current arg from stack...
-        ;; compare to DE, if equal - no arg!
-        ;; TODO: store HL
-        push    de                      ; store de
+        ;; get a at start of arg
         exx
-        pop     de
         pop     hl
-        or      a                       ; clear flags
-        sbc     hl,de                   ; compare
-        exx
-        ret     z                       ; return if equal
-        ;; else store arg!
-        exx
+        ld      a,(hl)
         push    hl
         exx
-pargs_store:
-        pop     de
+        ;; is it 0?
+        or      a
+        jr      z,pargs_noarg
+        ;; else store argument
+        pop     hl                      ; get arg
+        ex      de,hl
         ld      (hl),e
         inc     hl
         ld      (hl),d
+        ex      de,hl
+        ;; inc. argc
+        ld      a,(argc)
+        inc     a
+        ld      (argc),a
+        ;; and return
+        jr      pargs_done   
+pargs_next:
+        xor     a                       ; zero terminate
+        ld      (hl),a                  ; the argument
+        inc     hl                      ; next arg
+        push    de                      ; current arg to stack
+        exx
+        pop     de                      ; get current arg from stack
+        pop     hl                      ; get start of arg from stack
+        ex      de,hl
+        ld      (hl),e                  ; write arg to arg list
         inc     hl
+        ld      (hl),d
+        inc     hl
+        ex      de,hl
+        push    de                      ; store arg list new end
+        exx
+        pop     de                      ; get arg list 
+        push    hl                      ; next arg to stack
+        ld      a,(argc)                ; increase argc
+        inc     a
+        ld      (argc),a
+        djnz    pargs_loop
+pargs_noarg:
+        pop     hl                      ; clean stack
+pargs_done:
         ret
-
 
         .area   _DATA
 argc::
