@@ -1,9 +1,0 @@
-M:main
-F:G$main$0_0$0({2}DF,SI:S),C,0,0,0,0,0
-S:Lmain.main$argc$1_0$4({2}SI:S),B,1,4
-S:Lmain.main$argv$1_0$4({2}DG,DG,SC:U),B,1,6
-S:Lmain.main$i$2_0$6({2}SI:S),R,0,0,[c,b]
-S:G$putchar$0_0$0({2}DF,SI:S),C,0,0
-S:G$puts$0_0$0({2}DF,SI:S),C,0,0
-S:G$printf$0_0$0({2}DF,SV:S),C,0,0
-S:G$main$0_0$0({2}DF,SI:S),C,0,0
