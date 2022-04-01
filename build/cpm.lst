@@ -1,0 +1,1311 @@
+                                      1 ;--------------------------------------------------------
+                                      2 ; File Created by SDCC : free open source ANSI-C Compiler
+                                      3 ; Version 4.1.6 #12391 (Linux)
+                                      4 ;--------------------------------------------------------
+                                      5 	.module cpm
+                                      6 	.optsdcc -mz80
+                                      7 	
+                                      8 ;--------------------------------------------------------
+                                      9 ; Public variables in this module
+                                     10 ;--------------------------------------------------------
+                                     11 	.globl _printf
+                                     12 	.globl _puts
+                                     13 	.globl _putchar
+                                     14 	.globl _bdos
+                                     15 ;--------------------------------------------------------
+                                     16 ; special function registers
+                                     17 ;--------------------------------------------------------
+                                     18 ;--------------------------------------------------------
+                                     19 ; ram data
+                                     20 ;--------------------------------------------------------
+                                     21 	.area _DATA
+                                     22 ;--------------------------------------------------------
+                                     23 ; ram data
+                                     24 ;--------------------------------------------------------
+                                     25 	.area _INITIALIZED
+                                     26 ;--------------------------------------------------------
+                                     27 ; absolute external ram data
+                                     28 ;--------------------------------------------------------
+                                     29 	.area _DABS (ABS)
+                                     30 ;--------------------------------------------------------
+                                     31 ; global & static initialisations
+                                     32 ;--------------------------------------------------------
+                                     33 	.area _HOME
+                                     34 	.area _GSINIT
+                                     35 	.area _GSFINAL
+                                     36 	.area _GSINIT
+                                     37 ;--------------------------------------------------------
+                                     38 ; Home
+                                     39 ;--------------------------------------------------------
+                                     40 	.area _HOME
+                                     41 	.area _HOME
+                                     42 ;--------------------------------------------------------
+                                     43 ; code
+                                     44 ;--------------------------------------------------------
+                                     45 	.area _CODE
+                           000000    46 	G$putchar$0$0	= .
+                                     47 	.globl	G$putchar$0$0
+                           000000    48 	C$cpm.c$14$0_0$4	= .
+                                     49 	.globl	C$cpm.c$14$0_0$4
+                                     50 ;mini/cpm.c:14: int putchar(int c) {
+                                     51 ;	---------------------------------
+                                     52 ; Function putchar
+                                     53 ; ---------------------------------
+      000000                         54 _putchar::
+                           000000    55 	C$cpm.c$16$1_0$4	= .
+                                     56 	.globl	C$cpm.c$16$1_0$4
+                                     57 ;mini/cpm.c:16: if ((char)c=='\n') {
+      000000 21 02 00         [10]   58 	ld	hl, #2
+      000003 39               [11]   59 	add	hl, sp
+      000004 7E               [ 7]   60 	ld	a, (hl)
+      000005 D6 0A            [ 7]   61 	sub	a, #0x0a
+      000007 20 1B            [12]   62 	jr	NZ, 00102$
+                           000009    63 	C$cpm.c$17$2_0$5	= .
+                                     64 	.globl	C$cpm.c$17$2_0$5
+                                     65 ;mini/cpm.c:17: bdos(C_WRITE,'\r');
+      000009 21 0D 00         [10]   66 	ld	hl, #0x000d
+      00000C E5               [11]   67 	push	hl
+      00000D 3E 02            [ 7]   68 	ld	a, #0x02
+      00000F F5               [11]   69 	push	af
+      000010 33               [ 6]   70 	inc	sp
+      000011 CDr00r00         [17]   71 	call	_bdos
+                           000014    72 	C$cpm.c$18$2_0$5	= .
+                                     73 	.globl	C$cpm.c$18$2_0$5
+                                     74 ;mini/cpm.c:18: bdos(C_WRITE,'\n');
+      000014 33               [ 6]   75 	inc	sp
+      000015 21 0A 00         [10]   76 	ld	hl,#0x000a
+      000018 E3               [19]   77 	ex	(sp),hl
+      000019 3E 02            [ 7]   78 	ld	a, #0x02
+      00001B F5               [11]   79 	push	af
+      00001C 33               [ 6]   80 	inc	sp
+      00001D CDr00r00         [17]   81 	call	_bdos
+      000020 F1               [10]   82 	pop	af
+      000021 33               [ 6]   83 	inc	sp
+      000022 18 0E            [12]   84 	jr	00103$
+      000024                         85 00102$:
+                           000024    86 	C$cpm.c$19$1_0$4	= .
+                                     87 	.globl	C$cpm.c$19$1_0$4
+                                     88 ;mini/cpm.c:19: } else bdos(C_WRITE,c);
+      000024 D1               [10]   89 	pop	de
+      000025 E1               [10]   90 	pop	hl
+      000026 E5               [11]   91 	push	hl
+      000027 D5               [11]   92 	push	de
+      000028 E5               [11]   93 	push	hl
+      000029 3E 02            [ 7]   94 	ld	a, #0x02
+      00002B F5               [11]   95 	push	af
+      00002C 33               [ 6]   96 	inc	sp
+      00002D CDr00r00         [17]   97 	call	_bdos
+      000030 F1               [10]   98 	pop	af
+      000031 33               [ 6]   99 	inc	sp
+      000032                        100 00103$:
+                           000032   101 	C$cpm.c$20$1_0$4	= .
+                                    102 	.globl	C$cpm.c$20$1_0$4
+                                    103 ;mini/cpm.c:20: return c;
+      000032 D1               [10]  104 	pop	de
+      000033 E1               [10]  105 	pop	hl
+      000034 E5               [11]  106 	push	hl
+      000035 D5               [11]  107 	push	de
+                           000036   108 	C$cpm.c$21$1_0$4	= .
+                                    109 	.globl	C$cpm.c$21$1_0$4
+                                    110 ;mini/cpm.c:21: }
+                           000036   111 	C$cpm.c$21$1_0$4	= .
+                                    112 	.globl	C$cpm.c$21$1_0$4
+                           000036   113 	XG$putchar$0$0	= .
+                                    114 	.globl	XG$putchar$0$0
+      000036 C9               [10]  115 	ret
+                           000037   116 	G$puts$0$0	= .
+                                    117 	.globl	G$puts$0$0
+                           000037   118 	C$cpm.c$27$1_0$7	= .
+                                    119 	.globl	C$cpm.c$27$1_0$7
+                                    120 ;mini/cpm.c:27: int puts(const char *s)
+                                    121 ;	---------------------------------
+                                    122 ; Function puts
+                                    123 ; ---------------------------------
+      000037                        124 _puts::
+      000037 DD E5            [15]  125 	push	ix
+      000039 DD 21 00 00      [14]  126 	ld	ix,#0
+      00003D DD 39            [15]  127 	add	ix,sp
+                           00003F   128 	C$cpm.c$30$1_0$7	= .
+                                    129 	.globl	C$cpm.c$30$1_0$7
+                                    130 ;mini/cpm.c:30: if (s==NULL || s[0]==0) return 0;
+      00003F DD 7E 05         [19]  131 	ld	a, 5 (ix)
+      000042 DD B6 04         [19]  132 	or	a, 4 (ix)
+      000045 28 0A            [12]  133 	jr	Z, 00101$
+      000047 DD 4E 04         [19]  134 	ld	c, 4 (ix)
+      00004A DD 46 05         [19]  135 	ld	b, 5 (ix)
+      00004D 0A               [ 7]  136 	ld	a, (bc)
+      00004E B7               [ 4]  137 	or	a, a
+      00004F 20 05            [12]  138 	jr	NZ, 00111$
+      000051                        139 00101$:
+      000051 21 00 00         [10]  140 	ld	hl, #0x0000
+      000054 18 1C            [12]  141 	jr	00107$
+                           000056   142 	C$cpm.c$32$1_1$7	= .
+                                    143 	.globl	C$cpm.c$32$1_1$7
+                                    144 ;mini/cpm.c:32: while(s[i]) { putchar(s[i]); i++; }
+      000056                        145 00111$:
+      000056 11 00 00         [10]  146 	ld	de, #0x0000
+      000059                        147 00104$:
+      000059 6B               [ 4]  148 	ld	l, e
+      00005A 62               [ 4]  149 	ld	h, d
+      00005B 09               [11]  150 	add	hl, bc
+      00005C 7E               [ 7]  151 	ld	a, (hl)
+      00005D B7               [ 4]  152 	or	a, a
+      00005E 28 0F            [12]  153 	jr	Z, 00106$
+      000060 26 00            [ 7]  154 	ld	h, #0x00
+                                    155 ;	spillPairReg hl
+                                    156 ;	spillPairReg hl
+      000062 C5               [11]  157 	push	bc
+      000063 D5               [11]  158 	push	de
+      000064 6F               [ 4]  159 	ld	l, a
+                                    160 ;	spillPairReg hl
+                                    161 ;	spillPairReg hl
+      000065 E5               [11]  162 	push	hl
+      000066 CDr00r00         [17]  163 	call	_putchar
+      000069 F1               [10]  164 	pop	af
+      00006A D1               [10]  165 	pop	de
+      00006B C1               [10]  166 	pop	bc
+      00006C 13               [ 6]  167 	inc	de
+      00006D 18 EA            [12]  168 	jr	00104$
+      00006F                        169 00106$:
+                           00006F   170 	C$cpm.c$33$1_1$8	= .
+                                    171 	.globl	C$cpm.c$33$1_1$8
+                                    172 ;mini/cpm.c:33: return 1;
+      00006F 21 01 00         [10]  173 	ld	hl, #0x0001
+      000072                        174 00107$:
+                           000072   175 	C$cpm.c$34$1_1$7	= .
+                                    176 	.globl	C$cpm.c$34$1_1$7
+                                    177 ;mini/cpm.c:34: }
+      000072 DD E1            [14]  178 	pop	ix
+                           000074   179 	C$cpm.c$34$1_1$7	= .
+                                    180 	.globl	C$cpm.c$34$1_1$7
+                           000074   181 	XG$puts$0$0	= .
+                                    182 	.globl	XG$puts$0$0
+      000074 C9               [10]  183 	ret
+                           000075   184 	Fcpm$_prints$0$0	= .
+                                    185 	.globl	Fcpm$_prints$0$0
+                           000075   186 	C$cpm.c$44$1_1$11	= .
+                                    187 	.globl	C$cpm.c$44$1_1$11
+                                    188 ;mini/cpm.c:44: static void _prints(const char *string, int width, int flags)
+                                    189 ;	---------------------------------
+                                    190 ; Function _prints
+                                    191 ; ---------------------------------
+      000075                        192 __prints:
+      000075 DD E5            [15]  193 	push	ix
+      000077 DD 21 00 00      [14]  194 	ld	ix,#0
+      00007B DD 39            [15]  195 	add	ix,sp
+      00007D F5               [11]  196 	push	af
+                           00007E   197 	C$cpm.c$46$2_0$11	= .
+                                    198 	.globl	C$cpm.c$46$2_0$11
+                                    199 ;mini/cpm.c:46: int padchar = ' ';
+      00007E 01 20 00         [10]  200 	ld	bc, #0x0020
+                           000081   201 	C$cpm.c$51$2_0$11	= .
+                                    202 	.globl	C$cpm.c$51$2_0$11
+                                    203 ;mini/cpm.c:51: for (ptr = string; *ptr; ++ptr) ++len;
+      000081 DD 7E 04         [19]  204 	ld	a, 4 (ix)
+      000084 DD 77 FE         [19]  205 	ld	-2 (ix), a
+      000087 DD 7E 05         [19]  206 	ld	a, 5 (ix)
+      00008A DD 77 FF         [19]  207 	ld	-1 (ix), a
+                           00008D   208 	C$cpm.c$48$1_0$11	= .
+                                    209 	.globl	C$cpm.c$48$1_0$11
+                                    210 ;mini/cpm.c:48: if (width > 0) {
+      00008D AF               [ 4]  211 	xor	a, a
+      00008E DD BE 06         [19]  212 	cp	a, 6 (ix)
+      000091 DD 9E 07         [19]  213 	sbc	a, 7 (ix)
+      000094 E2r99r00         [10]  214 	jp	PO, 00191$
+      000097 EE 80            [ 7]  215 	xor	a, #0x80
+      000099                        216 00191$:
+      000099 F2rD9r00         [10]  217 	jp	P, 00108$
+                           00009C   218 	C$cpm.c$51$2_0$11	= .
+                                    219 	.globl	C$cpm.c$51$2_0$11
+                                    220 ;mini/cpm.c:51: for (ptr = string; *ptr; ++ptr) ++len;
+      00009C 11 00 00         [10]  221 	ld	de, #0x0000
+      00009F E1               [10]  222 	pop	hl
+      0000A0 E5               [11]  223 	push	hl
+      0000A1                        224 00115$:
+      0000A1 7E               [ 7]  225 	ld	a, (hl)
+      0000A2 B7               [ 4]  226 	or	a, a
+      0000A3 28 04            [12]  227 	jr	Z, 00101$
+      0000A5 23               [ 6]  228 	inc	hl
+      0000A6 13               [ 6]  229 	inc	de
+      0000A7 18 F8            [12]  230 	jr	00115$
+      0000A9                        231 00101$:
+                           0000A9   232 	C$cpm.c$52$2_0$12	= .
+                                    233 	.globl	C$cpm.c$52$2_0$12
+                                    234 ;mini/cpm.c:52: if (len >= width) width = 0;
+      0000A9 7B               [ 4]  235 	ld	a, e
+      0000AA DD 96 06         [19]  236 	sub	a, 6 (ix)
+      0000AD 7A               [ 4]  237 	ld	a, d
+      0000AE DD 9E 07         [19]  238 	sbc	a, 7 (ix)
+      0000B1 E2rB6r00         [10]  239 	jp	PO, 00192$
+      0000B4 EE 80            [ 7]  240 	xor	a, #0x80
+      0000B6                        241 00192$:
+      0000B6 FArC2r00         [10]  242 	jp	M, 00103$
+      0000B9 AF               [ 4]  243 	xor	a, a
+      0000BA DD 77 06         [19]  244 	ld	6 (ix), a
+      0000BD DD 77 07         [19]  245 	ld	7 (ix), a
+      0000C0 18 0E            [12]  246 	jr	00104$
+      0000C2                        247 00103$:
+                           0000C2   248 	C$cpm.c$53$2_0$12	= .
+                                    249 	.globl	C$cpm.c$53$2_0$12
+                                    250 ;mini/cpm.c:53: else width -= len;
+      0000C2 DD 7E 06         [19]  251 	ld	a, 6 (ix)
+      0000C5 93               [ 4]  252 	sub	a, e
+      0000C6 DD 77 06         [19]  253 	ld	6 (ix), a
+      0000C9 DD 7E 07         [19]  254 	ld	a, 7 (ix)
+      0000CC 9A               [ 4]  255 	sbc	a, d
+      0000CD DD 77 07         [19]  256 	ld	7 (ix), a
+      0000D0                        257 00104$:
+                           0000D0   258 	C$cpm.c$54$2_0$12	= .
+                                    259 	.globl	C$cpm.c$54$2_0$12
+                                    260 ;mini/cpm.c:54: if (flags & PAD_ZERO)
+      0000D0 DD CB 08 46      [20]  261 	bit	0, 8 (ix)
+      0000D4 28 03            [12]  262 	jr	Z, 00108$
+                           0000D6   263 	C$cpm.c$55$2_0$12	= .
+                                    264 	.globl	C$cpm.c$55$2_0$12
+                                    265 ;mini/cpm.c:55: padchar = '0';
+      0000D6 01 30 00         [10]  266 	ld	bc, #0x0030
+      0000D9                        267 00108$:
+                           0000D9   268 	C$cpm.c$57$1_0$11	= .
+                                    269 	.globl	C$cpm.c$57$1_0$11
+                                    270 ;mini/cpm.c:57: if (!(flags & PAD_RIGHT)) {
+      0000D9 DD CB 08 4E      [20]  271 	bit	1, 8 (ix)
+      0000DD 20 23            [12]  272 	jr	NZ, 00136$
+      0000DF DD 5E 06         [19]  273 	ld	e, 6 (ix)
+      0000E2 DD 56 07         [19]  274 	ld	d, 7 (ix)
+      0000E5                        275 00118$:
+                           0000E5   276 	C$cpm.c$58$3_0$15	= .
+                                    277 	.globl	C$cpm.c$58$3_0$15
+                                    278 ;mini/cpm.c:58: for ( ; width > 0; --width) {
+      0000E5 AF               [ 4]  279 	xor	a, a
+      0000E6 BB               [ 4]  280 	cp	a, e
+      0000E7 9A               [ 4]  281 	sbc	a, d
+      0000E8 E2rEDr00         [10]  282 	jp	PO, 00196$
+      0000EB EE 80            [ 7]  283 	xor	a, #0x80
+      0000ED                        284 00196$:
+      0000ED F2rFCr00         [10]  285 	jp	P, 00140$
+                           0000F0   286 	C$cpm.c$59$4_0$16	= .
+                                    287 	.globl	C$cpm.c$59$4_0$16
+                                    288 ;mini/cpm.c:59: putchar(padchar);
+      0000F0 C5               [11]  289 	push	bc
+      0000F1 D5               [11]  290 	push	de
+      0000F2 C5               [11]  291 	push	bc
+      0000F3 CDr00r00         [17]  292 	call	_putchar
+      0000F6 F1               [10]  293 	pop	af
+      0000F7 D1               [10]  294 	pop	de
+      0000F8 C1               [10]  295 	pop	bc
+                           0000F9   296 	C$cpm.c$58$3_0$15	= .
+                                    297 	.globl	C$cpm.c$58$3_0$15
+                                    298 ;mini/cpm.c:58: for ( ; width > 0; --width) {
+      0000F9 1B               [ 6]  299 	dec	de
+      0000FA 18 E9            [12]  300 	jr	00118$
+      0000FC                        301 00140$:
+      0000FC DD 73 06         [19]  302 	ld	6 (ix), e
+      0000FF DD 72 07         [19]  303 	ld	7 (ix), d
+      000102                        304 00136$:
+      000102                        305 00121$:
+                           000102   306 	C$cpm.c$62$2_0$17	= .
+                                    307 	.globl	C$cpm.c$62$2_0$17
+                                    308 ;mini/cpm.c:62: for ( ; *string ; ++string) {
+      000102 E1               [10]  309 	pop	hl
+      000103 E5               [11]  310 	push	hl
+      000104 7E               [ 7]  311 	ld	a, (hl)
+      000105 B7               [ 4]  312 	or	a, a
+      000106 28 14            [12]  313 	jr	Z, 00138$
+                           000108   314 	C$cpm.c$63$3_0$18	= .
+                                    315 	.globl	C$cpm.c$63$3_0$18
+                                    316 ;mini/cpm.c:63: putchar(*string);
+      000108 16 00            [ 7]  317 	ld	d, #0x00
+      00010A C5               [11]  318 	push	bc
+      00010B 5F               [ 4]  319 	ld	e, a
+      00010C D5               [11]  320 	push	de
+      00010D CDr00r00         [17]  321 	call	_putchar
+      000110 F1               [10]  322 	pop	af
+      000111 C1               [10]  323 	pop	bc
+                           000112   324 	C$cpm.c$62$2_0$17	= .
+                                    325 	.globl	C$cpm.c$62$2_0$17
+                                    326 ;mini/cpm.c:62: for ( ; *string ; ++string) {
+      000112 DD 34 FE         [23]  327 	inc	-2 (ix)
+      000115 20 EB            [12]  328 	jr	NZ, 00121$
+      000117 DD 34 FF         [23]  329 	inc	-1 (ix)
+      00011A 18 E6            [12]  330 	jr	00121$
+      00011C                        331 00138$:
+      00011C DD 5E 06         [19]  332 	ld	e, 6 (ix)
+      00011F DD 56 07         [19]  333 	ld	d, 7 (ix)
+      000122                        334 00124$:
+                           000122   335 	C$cpm.c$65$2_0$19	= .
+                                    336 	.globl	C$cpm.c$65$2_0$19
+                                    337 ;mini/cpm.c:65: for ( ; width > 0; --width) {
+      000122 AF               [ 4]  338 	xor	a, a
+      000123 BB               [ 4]  339 	cp	a, e
+      000124 9A               [ 4]  340 	sbc	a, d
+      000125 E2r2Ar01         [10]  341 	jp	PO, 00198$
+      000128 EE 80            [ 7]  342 	xor	a, #0x80
+      00012A                        343 00198$:
+      00012A F2r39r01         [10]  344 	jp	P, 00126$
+                           00012D   345 	C$cpm.c$66$3_0$20	= .
+                                    346 	.globl	C$cpm.c$66$3_0$20
+                                    347 ;mini/cpm.c:66: putchar(padchar);
+      00012D C5               [11]  348 	push	bc
+      00012E D5               [11]  349 	push	de
+      00012F C5               [11]  350 	push	bc
+      000130 CDr00r00         [17]  351 	call	_putchar
+      000133 F1               [10]  352 	pop	af
+      000134 D1               [10]  353 	pop	de
+      000135 C1               [10]  354 	pop	bc
+                           000136   355 	C$cpm.c$65$2_0$19	= .
+                                    356 	.globl	C$cpm.c$65$2_0$19
+                                    357 ;mini/cpm.c:65: for ( ; width > 0; --width) {
+      000136 1B               [ 6]  358 	dec	de
+      000137 18 E9            [12]  359 	jr	00124$
+      000139                        360 00126$:
+                           000139   361 	C$cpm.c$68$2_0$11	= .
+                                    362 	.globl	C$cpm.c$68$2_0$11
+                                    363 ;mini/cpm.c:68: }
+      000139 DD F9            [10]  364 	ld	sp, ix
+      00013B DD E1            [14]  365 	pop	ix
+                           00013D   366 	C$cpm.c$68$2_0$11	= .
+                                    367 	.globl	C$cpm.c$68$2_0$11
+                           00013D   368 	XFcpm$_prints$0$0	= .
+                                    369 	.globl	XFcpm$_prints$0$0
+      00013D C9               [10]  370 	ret
+                           00013E   371 	Fcpm$_printi$0$0	= .
+                                    372 	.globl	Fcpm$_printi$0$0
+                           00013E   373 	C$cpm.c$71$2_0$22	= .
+                                    374 	.globl	C$cpm.c$71$2_0$22
+                                    375 ;mini/cpm.c:71: static void _printi(int i, int base, int sign, int width, int flags, int letbase)
+                                    376 ;	---------------------------------
+                                    377 ; Function _printi
+                                    378 ; ---------------------------------
+      00013E                        379 __printi:
+      00013E DD E5            [15]  380 	push	ix
+      000140 DD 21 00 00      [14]  381 	ld	ix,#0
+      000144 DD 39            [15]  382 	add	ix,sp
+      000146 21 78 FF         [10]  383 	ld	hl, #-136
+      000149 39               [11]  384 	add	hl, sp
+      00014A F9               [ 6]  385 	ld	sp, hl
+                           00014B   386 	C$cpm.c$75$2_0$22	= .
+                                    387 	.globl	C$cpm.c$75$2_0$22
+                                    388 ;mini/cpm.c:75: int t, neg = 0, pc = 0;
+      00014B AF               [ 4]  389 	xor	a, a
+      00014C DD 77 F8         [19]  390 	ld	-8 (ix), a
+      00014F DD 77 F9         [19]  391 	ld	-7 (ix), a
+                           000152   392 	C$cpm.c$76$2_0$22	= .
+                                    393 	.globl	C$cpm.c$76$2_0$22
+                                    394 ;mini/cpm.c:76: unsigned int u = i;
+      000152 DD 4E 04         [19]  395 	ld	c, 4 (ix)
+      000155 DD 46 05         [19]  396 	ld	b, 5 (ix)
+                           000158   397 	C$cpm.c$77$1_0$22	= .
+                                    398 	.globl	C$cpm.c$77$1_0$22
+                                    399 ;mini/cpm.c:77: if (i == 0) {
+      000158 78               [ 4]  400 	ld	a, b
+      000159 B1               [ 4]  401 	or	a, c
+      00015A 20 25            [12]  402 	jr	NZ, 00102$
+                           00015C   403 	C$cpm.c$78$2_0$23	= .
+                                    404 	.globl	C$cpm.c$78$2_0$23
+                                    405 ;mini/cpm.c:78: print_buf[0] = '0';
+      00015C 21 00 00         [10]  406 	ld	hl, #0
+      00015F 39               [11]  407 	add	hl, sp
+      000160 EB               [ 4]  408 	ex	de, hl
+      000161 3E 30            [ 7]  409 	ld	a, #0x30
+      000163 12               [ 7]  410 	ld	(de), a
+                           000164   411 	C$cpm.c$79$2_0$23	= .
+                                    412 	.globl	C$cpm.c$79$2_0$23
+                                    413 ;mini/cpm.c:79: print_buf[1] = '\0';
+      000164 4B               [ 4]  414 	ld	c, e
+      000165 42               [ 4]  415 	ld	b, d
+      000166 03               [ 6]  416 	inc	bc
+      000167 AF               [ 4]  417 	xor	a, a
+      000168 02               [ 7]  418 	ld	(bc), a
+                           000169   419 	C$cpm.c$80$2_0$23	= .
+                                    420 	.globl	C$cpm.c$80$2_0$23
+                                    421 ;mini/cpm.c:80: _prints(print_buf, width, flags);
+      000169 DD 6E 0C         [19]  422 	ld	l, 12 (ix)
+                                    423 ;	spillPairReg hl
+                                    424 ;	spillPairReg hl
+      00016C DD 66 0D         [19]  425 	ld	h, 13 (ix)
+                                    426 ;	spillPairReg hl
+                                    427 ;	spillPairReg hl
+      00016F E5               [11]  428 	push	hl
+      000170 DD 6E 0A         [19]  429 	ld	l, 10 (ix)
+                                    430 ;	spillPairReg hl
+                                    431 ;	spillPairReg hl
+      000173 DD 66 0B         [19]  432 	ld	h, 11 (ix)
+                                    433 ;	spillPairReg hl
+                                    434 ;	spillPairReg hl
+      000176 E5               [11]  435 	push	hl
+      000177 D5               [11]  436 	push	de
+      000178 CDr75r00         [17]  437 	call	__prints
+      00017B F1               [10]  438 	pop	af
+      00017C F1               [10]  439 	pop	af
+      00017D F1               [10]  440 	pop	af
+                           00017E   441 	C$cpm.c$81$2_0$23	= .
+                                    442 	.globl	C$cpm.c$81$2_0$23
+                                    443 ;mini/cpm.c:81: return;
+      00017E C3r68r02         [10]  444 	jp	00118$
+      000181                        445 00102$:
+                           000181   446 	C$cpm.c$83$1_0$22	= .
+                                    447 	.globl	C$cpm.c$83$1_0$22
+                                    448 ;mini/cpm.c:83: if (sign && base == 10 && i < 0) {
+      000181 DD 7E 09         [19]  449 	ld	a, 9 (ix)
+      000184 DD B6 08         [19]  450 	or	a, 8 (ix)
+      000187 28 1E            [12]  451 	jr	Z, 00104$
+      000189 DD 7E 06         [19]  452 	ld	a, 6 (ix)
+      00018C D6 0A            [ 7]  453 	sub	a, #0x0a
+      00018E DD B6 07         [19]  454 	or	a, 7 (ix)
+      000191 20 14            [12]  455 	jr	NZ, 00104$
+      000193 DD CB 05 7E      [20]  456 	bit	7, 5 (ix)
+      000197 28 0E            [12]  457 	jr	Z, 00104$
+                           000199   458 	C$cpm.c$84$2_0$24	= .
+                                    459 	.globl	C$cpm.c$84$2_0$24
+                                    460 ;mini/cpm.c:84: neg = 1;
+      000199 DD 36 F8 01      [19]  461 	ld	-8 (ix), #0x01
+      00019D DD 36 F9 00      [19]  462 	ld	-7 (ix), #0
+                           0001A1   463 	C$cpm.c$85$2_0$24	= .
+                                    464 	.globl	C$cpm.c$85$2_0$24
+                                    465 ;mini/cpm.c:85: u = -i;
+      0001A1 AF               [ 4]  466 	xor	a, a
+      0001A2 91               [ 4]  467 	sub	a, c
+      0001A3 4F               [ 4]  468 	ld	c, a
+      0001A4 9F               [ 4]  469 	sbc	a, a
+      0001A5 90               [ 4]  470 	sub	a, b
+      0001A6 47               [ 4]  471 	ld	b, a
+      0001A7                        472 00104$:
+                           0001A7   473 	C$cpm.c$87$1_0$22	= .
+                                    474 	.globl	C$cpm.c$87$1_0$22
+                                    475 ;mini/cpm.c:87: s = print_buf + PRINT_BUF_LEN-1;
+      0001A7 21 7F 00         [10]  476 	ld	hl, #127
+      0001AA 39               [11]  477 	add	hl, sp
+      0001AB EB               [ 4]  478 	ex	de, hl
+                           0001AC   479 	C$cpm.c$88$1_0$22	= .
+                                    480 	.globl	C$cpm.c$88$1_0$22
+                                    481 ;mini/cpm.c:88: *s = '\0';
+      0001AC AF               [ 4]  482 	xor	a, a
+      0001AD 12               [ 7]  483 	ld	(de), a
+                           0001AE   484 	C$cpm.c$89$2_0$25	= .
+                                    485 	.globl	C$cpm.c$89$2_0$25
+                                    486 ;mini/cpm.c:89: while (u) {
+      0001AE DD 7E 0E         [19]  487 	ld	a, 14 (ix)
+      0001B1 C6 C6            [ 7]  488 	add	a, #0xc6
+      0001B3 DD 77 FA         [19]  489 	ld	-6 (ix), a
+      0001B6 DD 7E 0F         [19]  490 	ld	a, 15 (ix)
+      0001B9 CE FF            [ 7]  491 	adc	a, #0xff
+      0001BB DD 77 FB         [19]  492 	ld	-5 (ix), a
+      0001BE                        493 00109$:
+      0001BE 78               [ 4]  494 	ld	a, b
+      0001BF B1               [ 4]  495 	or	a, c
+      0001C0 28 5E            [12]  496 	jr	Z, 00130$
+                           0001C2   497 	C$cpm.c$90$2_0$25	= .
+                                    498 	.globl	C$cpm.c$90$2_0$25
+                                    499 ;mini/cpm.c:90: t = u % base;
+      0001C2 DD 7E 06         [19]  500 	ld	a, 6 (ix)
+      0001C5 DD 77 FC         [19]  501 	ld	-4 (ix), a
+      0001C8 DD 7E 07         [19]  502 	ld	a, 7 (ix)
+      0001CB DD 77 FD         [19]  503 	ld	-3 (ix), a
+      0001CE C5               [11]  504 	push	bc
+      0001CF D5               [11]  505 	push	de
+      0001D0 DD 6E FC         [19]  506 	ld	l, -4 (ix)
+                                    507 ;	spillPairReg hl
+                                    508 ;	spillPairReg hl
+      0001D3 DD 66 FD         [19]  509 	ld	h, -3 (ix)
+                                    510 ;	spillPairReg hl
+                                    511 ;	spillPairReg hl
+      0001D6 E5               [11]  512 	push	hl
+      0001D7 C5               [11]  513 	push	bc
+      0001D8 CDr00r00         [17]  514 	call	__moduint
+      0001DB F1               [10]  515 	pop	af
+      0001DC F1               [10]  516 	pop	af
+      0001DD D1               [10]  517 	pop	de
+      0001DE C1               [10]  518 	pop	bc
+      0001DF DD 75 FE         [19]  519 	ld	-2 (ix), l
+      0001E2 DD 74 FF         [19]  520 	ld	-1 (ix), h
+                           0001E5   521 	C$cpm.c$91$2_0$25	= .
+                                    522 	.globl	C$cpm.c$91$2_0$25
+                                    523 ;mini/cpm.c:91: if( t >= 10 )
+      0001E5 DD 7E FE         [19]  524 	ld	a, -2 (ix)
+      0001E8 D6 0A            [ 7]  525 	sub	a, #0x0a
+      0001EA DD 7E FF         [19]  526 	ld	a, -1 (ix)
+      0001ED 17               [ 4]  527 	rla
+      0001EE 3F               [ 4]  528 	ccf
+      0001EF 1F               [ 4]  529 	rra
+      0001F0 DE 80            [ 7]  530 	sbc	a, #0x80
+      0001F2 38 12            [12]  531 	jr	C, 00108$
+                           0001F4   532 	C$cpm.c$92$2_0$25	= .
+                                    533 	.globl	C$cpm.c$92$2_0$25
+                                    534 ;mini/cpm.c:92: t += letbase - '0' - 10;
+      0001F4 DD 7E FE         [19]  535 	ld	a, -2 (ix)
+      0001F7 DD 86 FA         [19]  536 	add	a, -6 (ix)
+      0001FA DD 77 FE         [19]  537 	ld	-2 (ix), a
+      0001FD DD 7E FF         [19]  538 	ld	a, -1 (ix)
+      000200 DD 8E FB         [19]  539 	adc	a, -5 (ix)
+      000203 DD 77 FF         [19]  540 	ld	-1 (ix), a
+      000206                        541 00108$:
+                           000206   542 	C$cpm.c$93$2_0$25	= .
+                                    543 	.globl	C$cpm.c$93$2_0$25
+                                    544 ;mini/cpm.c:93: *--s = t + '0';
+      000206 1B               [ 6]  545 	dec	de
+      000207 DD 7E FE         [19]  546 	ld	a, -2 (ix)
+      00020A C6 30            [ 7]  547 	add	a, #0x30
+      00020C 12               [ 7]  548 	ld	(de), a
+                           00020D   549 	C$cpm.c$94$1_0$22	= .
+                                    550 	.globl	C$cpm.c$94$1_0$22
+                                    551 ;mini/cpm.c:94: u /= base;
+      00020D D5               [11]  552 	push	de
+      00020E DD 6E FC         [19]  553 	ld	l, -4 (ix)
+                                    554 ;	spillPairReg hl
+                                    555 ;	spillPairReg hl
+      000211 DD 66 FD         [19]  556 	ld	h, -3 (ix)
+                                    557 ;	spillPairReg hl
+                                    558 ;	spillPairReg hl
+      000214 E5               [11]  559 	push	hl
+      000215 C5               [11]  560 	push	bc
+      000216 CDr00r00         [17]  561 	call	__divuint
+      000219 F1               [10]  562 	pop	af
+      00021A F1               [10]  563 	pop	af
+      00021B 4D               [ 4]  564 	ld	c, l
+      00021C 44               [ 4]  565 	ld	b, h
+      00021D D1               [10]  566 	pop	de
+      00021E 18 9E            [12]  567 	jr	00109$
+      000220                        568 00130$:
+                           000220   569 	C$cpm.c$96$1_0$22	= .
+                                    570 	.globl	C$cpm.c$96$1_0$22
+                                    571 ;mini/cpm.c:96: if (neg) {
+      000220 DD 7E F9         [19]  572 	ld	a, -7 (ix)
+      000223 DD B6 F8         [19]  573 	or	a, -8 (ix)
+      000226 28 2B            [12]  574 	jr	Z, 00117$
+                           000228   575 	C$cpm.c$97$2_0$26	= .
+                                    576 	.globl	C$cpm.c$97$2_0$26
+                                    577 ;mini/cpm.c:97: if( width && (flags & PAD_ZERO) ) {
+      000228 DD 7E 0B         [19]  578 	ld	a, 11 (ix)
+      00022B DD B6 0A         [19]  579 	or	a, 10 (ix)
+      00022E 28 1F            [12]  580 	jr	Z, 00113$
+      000230 DD CB 0C 46      [20]  581 	bit	0, 12 (ix)
+      000234 28 19            [12]  582 	jr	Z, 00113$
+                           000236   583 	C$cpm.c$98$3_0$27	= .
+                                    584 	.globl	C$cpm.c$98$3_0$27
+                                    585 ;mini/cpm.c:98: putchar ('-');
+      000236 D5               [11]  586 	push	de
+      000237 21 2D 00         [10]  587 	ld	hl, #0x002d
+      00023A E5               [11]  588 	push	hl
+      00023B CDr00r00         [17]  589 	call	_putchar
+      00023E F1               [10]  590 	pop	af
+      00023F D1               [10]  591 	pop	de
+                           000240   592 	C$cpm.c$100$3_0$27	= .
+                                    593 	.globl	C$cpm.c$100$3_0$27
+                                    594 ;mini/cpm.c:100: --width;
+      000240 DD 6E 0A         [19]  595 	ld	l, 10 (ix)
+      000243 DD 66 0B         [19]  596 	ld	h, 11 (ix)
+      000246 2B               [ 6]  597 	dec	hl
+      000247 DD 75 0A         [19]  598 	ld	10 (ix), l
+      00024A DD 74 0B         [19]  599 	ld	11 (ix), h
+      00024D 18 04            [12]  600 	jr	00117$
+      00024F                        601 00113$:
+                           00024F   602 	C$cpm.c$103$3_0$28	= .
+                                    603 	.globl	C$cpm.c$103$3_0$28
+                                    604 ;mini/cpm.c:103: *--s = '-';
+      00024F 1B               [ 6]  605 	dec	de
+      000250 3E 2D            [ 7]  606 	ld	a, #0x2d
+      000252 12               [ 7]  607 	ld	(de), a
+      000253                        608 00117$:
+                           000253   609 	C$cpm.c$106$1_0$22	= .
+                                    610 	.globl	C$cpm.c$106$1_0$22
+                                    611 ;mini/cpm.c:106: _prints(s, width, flags);
+      000253 DD 6E 0C         [19]  612 	ld	l, 12 (ix)
+                                    613 ;	spillPairReg hl
+                                    614 ;	spillPairReg hl
+      000256 DD 66 0D         [19]  615 	ld	h, 13 (ix)
+                                    616 ;	spillPairReg hl
+                                    617 ;	spillPairReg hl
+      000259 E5               [11]  618 	push	hl
+      00025A DD 6E 0A         [19]  619 	ld	l, 10 (ix)
+                                    620 ;	spillPairReg hl
+                                    621 ;	spillPairReg hl
+      00025D DD 66 0B         [19]  622 	ld	h, 11 (ix)
+                                    623 ;	spillPairReg hl
+                                    624 ;	spillPairReg hl
+      000260 E5               [11]  625 	push	hl
+      000261 D5               [11]  626 	push	de
+      000262 CDr75r00         [17]  627 	call	__prints
+      000265 F1               [10]  628 	pop	af
+      000266 F1               [10]  629 	pop	af
+      000267 F1               [10]  630 	pop	af
+      000268                        631 00118$:
+                           000268   632 	C$cpm.c$107$1_0$22	= .
+                                    633 	.globl	C$cpm.c$107$1_0$22
+                                    634 ;mini/cpm.c:107: }
+      000268 DD F9            [10]  635 	ld	sp, ix
+      00026A DD E1            [14]  636 	pop	ix
+                           00026C   637 	C$cpm.c$107$1_0$22	= .
+                                    638 	.globl	C$cpm.c$107$1_0$22
+                           00026C   639 	XFcpm$_printi$0$0	= .
+                                    640 	.globl	XFcpm$_printi$0$0
+      00026C C9               [10]  641 	ret
+                           00026D   642 	G$printf$0$0	= .
+                                    643 	.globl	G$printf$0$0
+                           00026D   644 	C$cpm.c$116$1_0$30	= .
+                                    645 	.globl	C$cpm.c$116$1_0$30
+                                    646 ;mini/cpm.c:116: void printf(const char *format, ...)
+                                    647 ;	---------------------------------
+                                    648 ; Function printf
+                                    649 ; ---------------------------------
+      00026D                        650 _printf::
+      00026D DD E5            [15]  651 	push	ix
+      00026F DD 21 00 00      [14]  652 	ld	ix,#0
+      000273 DD 39            [15]  653 	add	ix,sp
+      000275 21 F0 FF         [10]  654 	ld	hl, #-16
+      000278 39               [11]  655 	add	hl, sp
+      000279 F9               [ 6]  656 	ld	sp, hl
+                           00027A   657 	C$cpm.c$120$2_0$31	= .
+                                    658 	.globl	C$cpm.c$120$2_0$31
+                                    659 ;mini/cpm.c:120: va_start(ap, format);
+      00027A 21 16 00         [10]  660 	ld	hl,#0x16
+      00027D 39               [11]  661 	add	hl,sp
+      00027E DD 75 F4         [19]  662 	ld	-12 (ix), l
+      000281 DD 74 F5         [19]  663 	ld	-11 (ix), h
+      000284                        664 00132$:
+                           000284   665 	C$cpm.c$133$2_1$30	= .
+                                    666 	.globl	C$cpm.c$133$2_1$30
+                                    667 ;mini/cpm.c:133: for (; *format != 0; ++format) {
+      000284 DD 4E 04         [19]  668 	ld	c, 4 (ix)
+      000287 DD 46 05         [19]  669 	ld	b, 5 (ix)
+      00028A 0A               [ 7]  670 	ld	a, (bc)
+      00028B B7               [ 4]  671 	or	a, a
+      00028C CAr80r05         [10]  672 	jp	Z, 00134$
+                           00028F   673 	C$cpm.c$135$3_1$34	= .
+                                    674 	.globl	C$cpm.c$135$3_1$34
+                                    675 ;mini/cpm.c:135: if (*format == '%') {
+      00028F FE 25            [ 7]  676 	cp	a, #0x25
+      000291 C2r6Cr05         [10]  677 	jp	NZ,00122$
+                           000294   678 	C$cpm.c$136$4_1$35	= .
+                                    679 	.globl	C$cpm.c$136$4_1$35
+                                    680 ;mini/cpm.c:136: ++format;                   /* peek at next char after % */
+      000294 03               [ 6]  681 	inc	bc
+      000295 DD 71 04         [19]  682 	ld	4 (ix), c
+      000298 DD 70 05         [19]  683 	ld	5 (ix), b
+                           00029B   684 	C$cpm.c$137$4_1$35	= .
+                                    685 	.globl	C$cpm.c$137$4_1$35
+                                    686 ;mini/cpm.c:137: width = flags = 0;
+      00029B AF               [ 4]  687 	xor	a, a
+      00029C DD 77 FE         [19]  688 	ld	-2 (ix), a
+      00029F DD 77 FF         [19]  689 	ld	-1 (ix), a
+      0002A2 AF               [ 4]  690 	xor	a, a
+      0002A3 DD 77 F6         [19]  691 	ld	-10 (ix), a
+      0002A6 DD 77 F7         [19]  692 	ld	-9 (ix), a
+                           0002A9   693 	C$cpm.c$133$2_1$30	= .
+                                    694 	.globl	C$cpm.c$133$2_1$30
+                                    695 ;mini/cpm.c:133: for (; *format != 0; ++format) {
+      0002A9 DD 7E 04         [19]  696 	ld	a, 4 (ix)
+      0002AC DD 77 FC         [19]  697 	ld	-4 (ix), a
+      0002AF DD 7E 05         [19]  698 	ld	a, 5 (ix)
+      0002B2 DD 77 FD         [19]  699 	ld	-3 (ix), a
+      0002B5 DD 6E FC         [19]  700 	ld	l, -4 (ix)
+      0002B8 DD 66 FD         [19]  701 	ld	h, -3 (ix)
+      0002BB 7E               [ 7]  702 	ld	a, (hl)
+                           0002BC   703 	C$cpm.c$138$4_1$35	= .
+                                    704 	.globl	C$cpm.c$138$4_1$35
+                                    705 ;mini/cpm.c:138: if (*format == '\0')        /* if end of string it's a mistake: ignore */
+      0002BC B7               [ 4]  706 	or	a, a
+      0002BD CAr80r05         [10]  707 	jp	Z, 00134$
+                           0002C0   708 	C$cpm.c$140$4_1$35	= .
+                                    709 	.globl	C$cpm.c$140$4_1$35
+                                    710 ;mini/cpm.c:140: if (*format == '%')         /* if %% then it's escape code */
+      0002C0 FE 25            [ 7]  711 	cp	a, #0x25
+      0002C2 CAr6Cr05         [10]  712 	jp	Z,00122$
+                           0002C5   713 	C$cpm.c$142$4_1$35	= .
+                                    714 	.globl	C$cpm.c$142$4_1$35
+                                    715 ;mini/cpm.c:142: if (*format == '-') {       /* if - then pad right and get next format specifier */
+      0002C5 D6 2D            [ 7]  716 	sub	a, #0x2d
+      0002C7 20 18            [12]  717 	jr	NZ, 00144$
+                           0002C9   718 	C$cpm.c$143$5_1$36	= .
+                                    719 	.globl	C$cpm.c$143$5_1$36
+                                    720 ;mini/cpm.c:143: ++format;
+      0002C9 DD 7E FC         [19]  721 	ld	a, -4 (ix)
+      0002CC C6 01            [ 7]  722 	add	a, #0x01
+      0002CE DD 77 04         [19]  723 	ld	4 (ix), a
+      0002D1 DD 7E FD         [19]  724 	ld	a, -3 (ix)
+      0002D4 CE 00            [ 7]  725 	adc	a, #0x00
+      0002D6 DD 77 05         [19]  726 	ld	5 (ix), a
+                           0002D9   727 	C$cpm.c$144$5_1$36	= .
+                                    728 	.globl	C$cpm.c$144$5_1$36
+                                    729 ;mini/cpm.c:144: flags = PAD_RIGHT;
+      0002D9 DD 36 FE 02      [19]  730 	ld	-2 (ix), #0x02
+      0002DD DD 36 FF 00      [19]  731 	ld	-1 (ix), #0
+                           0002E1   732 	C$cpm.c$146$2_1$30	= .
+                                    733 	.globl	C$cpm.c$146$2_1$30
+                                    734 ;mini/cpm.c:146: while (*format == '0') {    /* if 0 then pad zero and get next format specifier */
+      0002E1                        735 00144$:
+      0002E1 DD 4E 04         [19]  736 	ld	c, 4 (ix)
+      0002E4 DD 46 05         [19]  737 	ld	b, 5 (ix)
+      0002E7                        738 00107$:
+      0002E7 0A               [ 7]  739 	ld	a, (bc)
+      0002E8 5F               [ 4]  740 	ld	e, a
+                           0002E9   741 	C$cpm.c$147$2_1$30	= .
+                                    742 	.globl	C$cpm.c$147$2_1$30
+                                    743 ;mini/cpm.c:147: ++format;
+      0002E9 69               [ 4]  744 	ld	l, c
+      0002EA 60               [ 4]  745 	ld	h, b
+      0002EB 23               [ 6]  746 	inc	hl
+      0002EC DD 75 FC         [19]  747 	ld	-4 (ix), l
+      0002EF DD 74 FD         [19]  748 	ld	-3 (ix), h
+                           0002F2   749 	C$cpm.c$146$4_1$35	= .
+                                    750 	.globl	C$cpm.c$146$4_1$35
+                                    751 ;mini/cpm.c:146: while (*format == '0') {    /* if 0 then pad zero and get next format specifier */
+      0002F2 7B               [ 4]  752 	ld	a, e
+      0002F3 D6 30            [ 7]  753 	sub	a, #0x30
+      0002F5 20 1C            [12]  754 	jr	NZ, 00157$
+                           0002F7   755 	C$cpm.c$147$5_1$37	= .
+                                    756 	.globl	C$cpm.c$147$5_1$37
+                                    757 ;mini/cpm.c:147: ++format;
+      0002F7 DD 4E FC         [19]  758 	ld	c, -4 (ix)
+      0002FA DD 46 FD         [19]  759 	ld	b, -3 (ix)
+      0002FD DD 7E FC         [19]  760 	ld	a, -4 (ix)
+      000300 DD 77 04         [19]  761 	ld	4 (ix), a
+      000303 DD 7E FD         [19]  762 	ld	a, -3 (ix)
+      000306 DD 77 05         [19]  763 	ld	5 (ix), a
+                           000309   764 	C$cpm.c$148$5_1$37	= .
+                                    765 	.globl	C$cpm.c$148$5_1$37
+                                    766 ;mini/cpm.c:148: flags |= PAD_ZERO;
+      000309 DD 7E FE         [19]  767 	ld	a, -2 (ix)
+      00030C F6 01            [ 7]  768 	or	a, #0x01
+      00030E DD 77 FE         [19]  769 	ld	-2 (ix), a
+      000311 18 D4            [12]  770 	jr	00107$
+      000313                        771 00157$:
+      000313 DD 71 04         [19]  772 	ld	4 (ix), c
+      000316 DD 70 05         [19]  773 	ld	5 (ix), b
+                           000319   774 	C$cpm.c$150$4_1$35	= .
+                                    775 	.globl	C$cpm.c$150$4_1$35
+                                    776 ;mini/cpm.c:150: if (*format == '*') {
+      000319 7B               [ 4]  777 	ld	a, e
+      00031A D6 2A            [ 7]  778 	sub	a, #0x2a
+      00031C 20 27            [12]  779 	jr	NZ, 00148$
+                           00031E   780 	C$cpm.c$151$5_1$38	= .
+                                    781 	.globl	C$cpm.c$151$5_1$38
+                                    782 ;mini/cpm.c:151: width = va_arg(ap, int);
+      00031E DD 4E F4         [19]  783 	ld	c, -12 (ix)
+      000321 DD 46 F5         [19]  784 	ld	b, -11 (ix)
+      000324 03               [ 6]  785 	inc	bc
+      000325 03               [ 6]  786 	inc	bc
+      000326 DD 71 F4         [19]  787 	ld	-12 (ix), c
+      000329 DD 70 F5         [19]  788 	ld	-11 (ix), b
+      00032C 0B               [ 6]  789 	dec	bc
+      00032D 0B               [ 6]  790 	dec	bc
+      00032E 0A               [ 7]  791 	ld	a, (bc)
+      00032F DD 77 F6         [19]  792 	ld	-10 (ix), a
+      000332 03               [ 6]  793 	inc	bc
+      000333 0A               [ 7]  794 	ld	a, (bc)
+      000334 DD 77 F7         [19]  795 	ld	-9 (ix), a
+                           000337   796 	C$cpm.c$152$5_1$38	= .
+                                    797 	.globl	C$cpm.c$152$5_1$38
+                                    798 ;mini/cpm.c:152: format++;
+      000337 DD 7E FC         [19]  799 	ld	a, -4 (ix)
+      00033A DD 77 04         [19]  800 	ld	4 (ix), a
+      00033D DD 7E FD         [19]  801 	ld	a, -3 (ix)
+      000340 DD 77 05         [19]  802 	ld	5 (ix), a
+      000343 18 39            [12]  803 	jr	00113$
+      000345                        804 00148$:
+      000345                        805 00129$:
+                           000345   806 	C$cpm.c$154$6_1$40	= .
+                                    807 	.globl	C$cpm.c$154$6_1$40
+                                    808 ;mini/cpm.c:154: for ( ; *format >= '0' && *format <= '9'; ++format) {
+      000345 0A               [ 7]  809 	ld	a, (bc)
+      000346 5F               [ 4]  810 	ld	e, a
+      000347 D6 30            [ 7]  811 	sub	a, #0x30
+      000349 38 2D            [12]  812 	jr	C, 00158$
+      00034B 3E 39            [ 7]  813 	ld	a, #0x39
+      00034D 93               [ 4]  814 	sub	a, e
+      00034E 38 28            [12]  815 	jr	C, 00158$
+                           000350   816 	C$cpm.c$155$7_1$41	= .
+                                    817 	.globl	C$cpm.c$155$7_1$41
+                                    818 ;mini/cpm.c:155: width *= 10;
+      000350 D5               [11]  819 	push	de
+      000351 DD 5E F6         [19]  820 	ld	e, -10 (ix)
+      000354 DD 56 F7         [19]  821 	ld	d, -9 (ix)
+      000357 6B               [ 4]  822 	ld	l, e
+      000358 62               [ 4]  823 	ld	h, d
+      000359 29               [11]  824 	add	hl, hl
+      00035A 29               [11]  825 	add	hl, hl
+      00035B 19               [11]  826 	add	hl, de
+      00035C 29               [11]  827 	add	hl, hl
+      00035D D1               [10]  828 	pop	de
+                           00035E   829 	C$cpm.c$156$7_1$41	= .
+                                    830 	.globl	C$cpm.c$156$7_1$41
+                                    831 ;mini/cpm.c:156: width += *format - '0';
+      00035E 16 00            [ 7]  832 	ld	d, #0x00
+      000360 7B               [ 4]  833 	ld	a, e
+      000361 C6 D0            [ 7]  834 	add	a, #0xd0
+      000363 5F               [ 4]  835 	ld	e, a
+      000364 7A               [ 4]  836 	ld	a, d
+      000365 CE FF            [ 7]  837 	adc	a, #0xff
+      000367 57               [ 4]  838 	ld	d, a
+      000368 19               [11]  839 	add	hl, de
+      000369 DD 75 F6         [19]  840 	ld	-10 (ix), l
+      00036C DD 74 F7         [19]  841 	ld	-9 (ix), h
+                           00036F   842 	C$cpm.c$154$6_1$40	= .
+                                    843 	.globl	C$cpm.c$154$6_1$40
+                                    844 ;mini/cpm.c:154: for ( ; *format >= '0' && *format <= '9'; ++format) {
+      00036F 03               [ 6]  845 	inc	bc
+      000370 DD 71 04         [19]  846 	ld	4 (ix), c
+      000373 DD 70 05         [19]  847 	ld	5 (ix), b
+      000376 18 CD            [12]  848 	jr	00129$
+      000378                        849 00158$:
+      000378 DD 71 04         [19]  850 	ld	4 (ix), c
+      00037B DD 70 05         [19]  851 	ld	5 (ix), b
+      00037E                        852 00113$:
+                           00037E   853 	C$cpm.c$160$4_1$35	= .
+                                    854 	.globl	C$cpm.c$160$4_1$35
+                                    855 ;mini/cpm.c:160: switch (*format) {
+      00037E DD 6E 04         [19]  856 	ld	l, 4 (ix)
+                                    857 ;	spillPairReg hl
+                                    858 ;	spillPairReg hl
+      000381 DD 66 05         [19]  859 	ld	h, 5 (ix)
+                                    860 ;	spillPairReg hl
+                                    861 ;	spillPairReg hl
+      000384 5E               [ 7]  862 	ld	e, (hl)
+                           000385   863 	C$cpm.c$151$2_1$30	= .
+                                    864 	.globl	C$cpm.c$151$2_1$30
+                                    865 ;mini/cpm.c:151: width = va_arg(ap, int);
+      000385 DD 4E F4         [19]  866 	ld	c, -12 (ix)
+      000388 DD 46 F5         [19]  867 	ld	b, -11 (ix)
+      00038B 03               [ 6]  868 	inc	bc
+      00038C 03               [ 6]  869 	inc	bc
+                           00038D   870 	C$cpm.c$162$2_1$30	= .
+                                    871 	.globl	C$cpm.c$162$2_1$30
+                                    872 ;mini/cpm.c:162: u.i = va_arg(ap, int);
+      00038D 79               [ 4]  873 	ld	a, c
+      00038E C6 FE            [ 7]  874 	add	a, #0xfe
+      000390 DD 77 F8         [19]  875 	ld	-8 (ix), a
+      000393 78               [ 4]  876 	ld	a, b
+      000394 CE FF            [ 7]  877 	adc	a, #0xff
+      000396 DD 77 F9         [19]  878 	ld	-7 (ix), a
+                           000399   879 	C$cpm.c$167$2_1$30	= .
+                                    880 	.globl	C$cpm.c$167$2_1$30
+                                    881 ;mini/cpm.c:167: u.u = va_arg(ap, unsigned int);
+      000399 DD 7E F8         [19]  882 	ld	a, -8 (ix)
+      00039C DD 77 FA         [19]  883 	ld	-6 (ix), a
+      00039F DD 7E F9         [19]  884 	ld	a, -7 (ix)
+      0003A2 DD 77 FB         [19]  885 	ld	-5 (ix), a
+                           0003A5   886 	C$cpm.c$160$4_1$35	= .
+                                    887 	.globl	C$cpm.c$160$4_1$35
+                                    888 ;mini/cpm.c:160: switch (*format) {
+      0003A5 7B               [ 4]  889 	ld	a, e
+      0003A6 D6 58            [ 7]  890 	sub	a, #0x58
+      0003A8 CAr98r04         [10]  891 	jp	Z,00117$
+                           0003AB   892 	C$cpm.c$162$2_1$30	= .
+                                    893 	.globl	C$cpm.c$162$2_1$30
+                                    894 ;mini/cpm.c:162: u.i = va_arg(ap, int);
+      0003AB DD 7E F8         [19]  895 	ld	a, -8 (ix)
+      0003AE DD 77 FC         [19]  896 	ld	-4 (ix), a
+      0003B1 DD 7E F9         [19]  897 	ld	a, -7 (ix)
+      0003B4 DD 77 FD         [19]  898 	ld	-3 (ix), a
+                           0003B7   899 	C$cpm.c$160$4_1$35	= .
+                                    900 	.globl	C$cpm.c$160$4_1$35
+                                    901 ;mini/cpm.c:160: switch (*format) {
+      0003B7 7B               [ 4]  902 	ld	a,e
+      0003B8 FE 63            [ 7]  903 	cp	a,#0x63
+      0003BA CArDAr04         [10]  904 	jp	Z,00118$
+      0003BD FE 64            [ 7]  905 	cp	a,#0x64
+      0003BF 28 11            [12]  906 	jr	Z, 00114$
+      0003C1 FE 73            [ 7]  907 	cp	a,#0x73
+      0003C3 CAr11r05         [10]  908 	jp	Z,00119$
+      0003C6 FE 75            [ 7]  909 	cp	a,#0x75
+      0003C8 28 4A            [12]  910 	jr	Z, 00115$
+      0003CA D6 78            [ 7]  911 	sub	a, #0x78
+      0003CC CAr56r04         [10]  912 	jp	Z,00116$
+      0003CF C3r74r05         [10]  913 	jp	00133$
+                           0003D2   914 	C$cpm.c$161$5_1$42	= .
+                                    915 	.globl	C$cpm.c$161$5_1$42
+                                    916 ;mini/cpm.c:161: case('d'):              /* decimal! */
+      0003D2                        917 00114$:
+                           0003D2   918 	C$cpm.c$162$5_1$42	= .
+                                    919 	.globl	C$cpm.c$162$5_1$42
+                                    920 ;mini/cpm.c:162: u.i = va_arg(ap, int);
+      0003D2 21 02 00         [10]  921 	ld	hl, #2
+      0003D5 39               [11]  922 	add	hl, sp
+      0003D6 EB               [ 4]  923 	ex	de, hl
+      0003D7 DD 71 F4         [19]  924 	ld	-12 (ix), c
+      0003DA DD 70 F5         [19]  925 	ld	-11 (ix), b
+      0003DD DD 6E FC         [19]  926 	ld	l, -4 (ix)
+      0003E0 DD 66 FD         [19]  927 	ld	h, -3 (ix)
+      0003E3 4E               [ 7]  928 	ld	c, (hl)
+      0003E4 23               [ 6]  929 	inc	hl
+      0003E5 46               [ 7]  930 	ld	b, (hl)
+      0003E6 6B               [ 4]  931 	ld	l, e
+      0003E7 62               [ 4]  932 	ld	h, d
+      0003E8 71               [ 7]  933 	ld	(hl), c
+      0003E9 23               [ 6]  934 	inc	hl
+      0003EA 70               [ 7]  935 	ld	(hl), b
+                           0003EB   936 	C$cpm.c$163$5_1$42	= .
+                                    937 	.globl	C$cpm.c$163$5_1$42
+                                    938 ;mini/cpm.c:163: _printi(u.i, 10, 1, width, flags, 'a');
+      0003EB EB               [ 4]  939 	ex	de,hl
+      0003EC 7E               [ 7]  940 	ld	a, (hl)
+      0003ED 23               [ 6]  941 	inc	hl
+      0003EE 7E               [ 7]  942 	ld	a, (hl)
+      0003EF 21 61 00         [10]  943 	ld	hl, #0x0061
+      0003F2 E5               [11]  944 	push	hl
+      0003F3 DD 6E FE         [19]  945 	ld	l, -2 (ix)
+                                    946 ;	spillPairReg hl
+                                    947 ;	spillPairReg hl
+      0003F6 DD 66 FF         [19]  948 	ld	h, -1 (ix)
+                                    949 ;	spillPairReg hl
+                                    950 ;	spillPairReg hl
+      0003F9 E5               [11]  951 	push	hl
+      0003FA DD 6E F6         [19]  952 	ld	l, -10 (ix)
+                                    953 ;	spillPairReg hl
+                                    954 ;	spillPairReg hl
+      0003FD DD 66 F7         [19]  955 	ld	h, -9 (ix)
+                                    956 ;	spillPairReg hl
+                                    957 ;	spillPairReg hl
+      000400 E5               [11]  958 	push	hl
+      000401 21 01 00         [10]  959 	ld	hl, #0x0001
+      000404 E5               [11]  960 	push	hl
+      000405 2E 0A            [ 7]  961 	ld	l, #0x0a
+      000407 E5               [11]  962 	push	hl
+      000408 C5               [11]  963 	push	bc
+      000409 CDr3Er01         [17]  964 	call	__printi
+      00040C 21 0C 00         [10]  965 	ld	hl, #12
+      00040F 39               [11]  966 	add	hl, sp
+      000410 F9               [ 6]  967 	ld	sp, hl
+                           000411   968 	C$cpm.c$164$5_1$42	= .
+                                    969 	.globl	C$cpm.c$164$5_1$42
+                                    970 ;mini/cpm.c:164: break;
+      000411 C3r74r05         [10]  971 	jp	00133$
+                           000414   972 	C$cpm.c$166$5_1$42	= .
+                                    973 	.globl	C$cpm.c$166$5_1$42
+                                    974 ;mini/cpm.c:166: case('u'):              /* unsigned */
+      000414                        975 00115$:
+                           000414   976 	C$cpm.c$167$5_1$42	= .
+                                    977 	.globl	C$cpm.c$167$5_1$42
+                                    978 ;mini/cpm.c:167: u.u = va_arg(ap, unsigned int);
+      000414 21 02 00         [10]  979 	ld	hl, #2
+      000417 39               [11]  980 	add	hl, sp
+      000418 EB               [ 4]  981 	ex	de, hl
+      000419 DD 71 F4         [19]  982 	ld	-12 (ix), c
+      00041C DD 70 F5         [19]  983 	ld	-11 (ix), b
+      00041F DD 6E FA         [19]  984 	ld	l, -6 (ix)
+      000422 DD 66 FB         [19]  985 	ld	h, -5 (ix)
+      000425 4E               [ 7]  986 	ld	c, (hl)
+      000426 23               [ 6]  987 	inc	hl
+      000427 46               [ 7]  988 	ld	b, (hl)
+      000428 6B               [ 4]  989 	ld	l, e
+      000429 62               [ 4]  990 	ld	h, d
+      00042A 71               [ 7]  991 	ld	(hl), c
+      00042B 23               [ 6]  992 	inc	hl
+      00042C 70               [ 7]  993 	ld	(hl), b
+                           00042D   994 	C$cpm.c$168$5_1$42	= .
+                                    995 	.globl	C$cpm.c$168$5_1$42
+                                    996 ;mini/cpm.c:168: _printi(u.u, 10, 0, width, flags, 'a');
+      00042D EB               [ 4]  997 	ex	de,hl
+      00042E 7E               [ 7]  998 	ld	a, (hl)
+      00042F 23               [ 6]  999 	inc	hl
+      000430 7E               [ 7] 1000 	ld	a, (hl)
+      000431 21 61 00         [10] 1001 	ld	hl, #0x0061
+      000434 E5               [11] 1002 	push	hl
+      000435 DD 6E FE         [19] 1003 	ld	l, -2 (ix)
+                                   1004 ;	spillPairReg hl
+                                   1005 ;	spillPairReg hl
+      000438 DD 66 FF         [19] 1006 	ld	h, -1 (ix)
+                                   1007 ;	spillPairReg hl
+                                   1008 ;	spillPairReg hl
+      00043B E5               [11] 1009 	push	hl
+      00043C DD 6E F6         [19] 1010 	ld	l, -10 (ix)
+                                   1011 ;	spillPairReg hl
+                                   1012 ;	spillPairReg hl
+      00043F DD 66 F7         [19] 1013 	ld	h, -9 (ix)
+                                   1014 ;	spillPairReg hl
+                                   1015 ;	spillPairReg hl
+      000442 E5               [11] 1016 	push	hl
+      000443 21 00 00         [10] 1017 	ld	hl, #0x0000
+      000446 E5               [11] 1018 	push	hl
+      000447 2E 0A            [ 7] 1019 	ld	l, #0x0a
+      000449 E5               [11] 1020 	push	hl
+      00044A C5               [11] 1021 	push	bc
+      00044B CDr3Er01         [17] 1022 	call	__printi
+      00044E 21 0C 00         [10] 1023 	ld	hl, #12
+      000451 39               [11] 1024 	add	hl, sp
+      000452 F9               [ 6] 1025 	ld	sp, hl
+                           000453  1026 	C$cpm.c$169$5_1$42	= .
+                                   1027 	.globl	C$cpm.c$169$5_1$42
+                                   1028 ;mini/cpm.c:169: break;
+      000453 C3r74r05         [10] 1029 	jp	00133$
+                           000456  1030 	C$cpm.c$171$5_1$42	= .
+                                   1031 	.globl	C$cpm.c$171$5_1$42
+                                   1032 ;mini/cpm.c:171: case('x'):              /* hex */
+      000456                       1033 00116$:
+                           000456  1034 	C$cpm.c$172$5_1$42	= .
+                                   1035 	.globl	C$cpm.c$172$5_1$42
+                                   1036 ;mini/cpm.c:172: u.u = va_arg(ap, unsigned int);
+      000456 21 02 00         [10] 1037 	ld	hl, #2
+      000459 39               [11] 1038 	add	hl, sp
+      00045A EB               [ 4] 1039 	ex	de, hl
+      00045B DD 71 F4         [19] 1040 	ld	-12 (ix), c
+      00045E DD 70 F5         [19] 1041 	ld	-11 (ix), b
+      000461 DD 6E FA         [19] 1042 	ld	l, -6 (ix)
+      000464 DD 66 FB         [19] 1043 	ld	h, -5 (ix)
+      000467 4E               [ 7] 1044 	ld	c, (hl)
+      000468 23               [ 6] 1045 	inc	hl
+      000469 46               [ 7] 1046 	ld	b, (hl)
+      00046A 6B               [ 4] 1047 	ld	l, e
+      00046B 62               [ 4] 1048 	ld	h, d
+      00046C 71               [ 7] 1049 	ld	(hl), c
+      00046D 23               [ 6] 1050 	inc	hl
+      00046E 70               [ 7] 1051 	ld	(hl), b
+                           00046F  1052 	C$cpm.c$173$5_1$42	= .
+                                   1053 	.globl	C$cpm.c$173$5_1$42
+                                   1054 ;mini/cpm.c:173: _printi(u.u, 16, 0, width, flags, 'a');
+      00046F EB               [ 4] 1055 	ex	de,hl
+      000470 7E               [ 7] 1056 	ld	a, (hl)
+      000471 23               [ 6] 1057 	inc	hl
+      000472 7E               [ 7] 1058 	ld	a, (hl)
+      000473 21 61 00         [10] 1059 	ld	hl, #0x0061
+      000476 E5               [11] 1060 	push	hl
+      000477 DD 6E FE         [19] 1061 	ld	l, -2 (ix)
+                                   1062 ;	spillPairReg hl
+                                   1063 ;	spillPairReg hl
+      00047A DD 66 FF         [19] 1064 	ld	h, -1 (ix)
+                                   1065 ;	spillPairReg hl
+                                   1066 ;	spillPairReg hl
+      00047D E5               [11] 1067 	push	hl
+      00047E DD 6E F6         [19] 1068 	ld	l, -10 (ix)
+                                   1069 ;	spillPairReg hl
+                                   1070 ;	spillPairReg hl
+      000481 DD 66 F7         [19] 1071 	ld	h, -9 (ix)
+                                   1072 ;	spillPairReg hl
+                                   1073 ;	spillPairReg hl
+      000484 E5               [11] 1074 	push	hl
+      000485 21 00 00         [10] 1075 	ld	hl, #0x0000
+      000488 E5               [11] 1076 	push	hl
+      000489 2E 10            [ 7] 1077 	ld	l, #0x10
+      00048B E5               [11] 1078 	push	hl
+      00048C C5               [11] 1079 	push	bc
+      00048D CDr3Er01         [17] 1080 	call	__printi
+      000490 21 0C 00         [10] 1081 	ld	hl, #12
+      000493 39               [11] 1082 	add	hl, sp
+      000494 F9               [ 6] 1083 	ld	sp, hl
+                           000495  1084 	C$cpm.c$174$5_1$42	= .
+                                   1085 	.globl	C$cpm.c$174$5_1$42
+                                   1086 ;mini/cpm.c:174: break;
+      000495 C3r74r05         [10] 1087 	jp	00133$
+                           000498  1088 	C$cpm.c$176$5_1$42	= .
+                                   1089 	.globl	C$cpm.c$176$5_1$42
+                                   1090 ;mini/cpm.c:176: case('X'):              /* hex, capital */
+      000498                       1091 00117$:
+                           000498  1092 	C$cpm.c$177$5_1$42	= .
+                                   1093 	.globl	C$cpm.c$177$5_1$42
+                                   1094 ;mini/cpm.c:177: u.u = va_arg(ap, unsigned int);
+      000498 21 02 00         [10] 1095 	ld	hl, #2
+      00049B 39               [11] 1096 	add	hl, sp
+      00049C EB               [ 4] 1097 	ex	de, hl
+      00049D DD 71 F4         [19] 1098 	ld	-12 (ix), c
+      0004A0 DD 70 F5         [19] 1099 	ld	-11 (ix), b
+      0004A3 DD 6E FA         [19] 1100 	ld	l, -6 (ix)
+      0004A6 DD 66 FB         [19] 1101 	ld	h, -5 (ix)
+      0004A9 4E               [ 7] 1102 	ld	c, (hl)
+      0004AA 23               [ 6] 1103 	inc	hl
+      0004AB 46               [ 7] 1104 	ld	b, (hl)
+      0004AC 6B               [ 4] 1105 	ld	l, e
+      0004AD 62               [ 4] 1106 	ld	h, d
+      0004AE 71               [ 7] 1107 	ld	(hl), c
+      0004AF 23               [ 6] 1108 	inc	hl
+      0004B0 70               [ 7] 1109 	ld	(hl), b
+                           0004B1  1110 	C$cpm.c$178$5_1$42	= .
+                                   1111 	.globl	C$cpm.c$178$5_1$42
+                                   1112 ;mini/cpm.c:178: _printi(u.u, 16, 0, width, flags, 'A');
+      0004B1 EB               [ 4] 1113 	ex	de,hl
+      0004B2 7E               [ 7] 1114 	ld	a, (hl)
+      0004B3 23               [ 6] 1115 	inc	hl
+      0004B4 7E               [ 7] 1116 	ld	a, (hl)
+      0004B5 21 41 00         [10] 1117 	ld	hl, #0x0041
+      0004B8 E5               [11] 1118 	push	hl
+      0004B9 DD 6E FE         [19] 1119 	ld	l, -2 (ix)
+                                   1120 ;	spillPairReg hl
+                                   1121 ;	spillPairReg hl
+      0004BC DD 66 FF         [19] 1122 	ld	h, -1 (ix)
+                                   1123 ;	spillPairReg hl
+                                   1124 ;	spillPairReg hl
+      0004BF E5               [11] 1125 	push	hl
+      0004C0 DD 6E F6         [19] 1126 	ld	l, -10 (ix)
+                                   1127 ;	spillPairReg hl
+                                   1128 ;	spillPairReg hl
+      0004C3 DD 66 F7         [19] 1129 	ld	h, -9 (ix)
+                                   1130 ;	spillPairReg hl
+                                   1131 ;	spillPairReg hl
+      0004C6 E5               [11] 1132 	push	hl
+      0004C7 21 00 00         [10] 1133 	ld	hl, #0x0000
+      0004CA E5               [11] 1134 	push	hl
+      0004CB 2E 10            [ 7] 1135 	ld	l, #0x10
+      0004CD E5               [11] 1136 	push	hl
+      0004CE C5               [11] 1137 	push	bc
+      0004CF CDr3Er01         [17] 1138 	call	__printi
+      0004D2 21 0C 00         [10] 1139 	ld	hl, #12
+      0004D5 39               [11] 1140 	add	hl, sp
+      0004D6 F9               [ 6] 1141 	ld	sp, hl
+                           0004D7  1142 	C$cpm.c$179$5_1$42	= .
+                                   1143 	.globl	C$cpm.c$179$5_1$42
+                                   1144 ;mini/cpm.c:179: break;
+      0004D7 C3r74r05         [10] 1145 	jp	00133$
+                           0004DA  1146 	C$cpm.c$181$5_1$42	= .
+                                   1147 	.globl	C$cpm.c$181$5_1$42
+                                   1148 ;mini/cpm.c:181: case('c'):              /* char */
+      0004DA                       1149 00118$:
+                           0004DA  1150 	C$cpm.c$182$5_1$42	= .
+                                   1151 	.globl	C$cpm.c$182$5_1$42
+                                   1152 ;mini/cpm.c:182: u.c = va_arg(ap, int);
+      0004DA 21 02 00         [10] 1153 	ld	hl, #2
+      0004DD 39               [11] 1154 	add	hl, sp
+      0004DE EB               [ 4] 1155 	ex	de, hl
+      0004DF DD 71 F4         [19] 1156 	ld	-12 (ix), c
+      0004E2 DD 70 F5         [19] 1157 	ld	-11 (ix), b
+      0004E5 DD 6E FC         [19] 1158 	ld	l, -4 (ix)
+      0004E8 DD 66 FD         [19] 1159 	ld	h, -3 (ix)
+      0004EB 7E               [ 7] 1160 	ld	a, (hl)
+      0004EC 12               [ 7] 1161 	ld	(de), a
+                           0004ED  1162 	C$cpm.c$183$5_1$42	= .
+                                   1163 	.globl	C$cpm.c$183$5_1$42
+                                   1164 ;mini/cpm.c:183: scr[0] = u.c;
+      0004ED 21 00 00         [10] 1165 	ld	hl, #0
+      0004F0 39               [11] 1166 	add	hl, sp
+      0004F1 4D               [ 4] 1167 	ld	c, l
+      0004F2 44               [ 4] 1168 	ld	b, h
+      0004F3 1A               [ 7] 1169 	ld	a, (de)
+      0004F4 02               [ 7] 1170 	ld	(bc), a
+                           0004F5  1171 	C$cpm.c$184$5_1$42	= .
+                                   1172 	.globl	C$cpm.c$184$5_1$42
+                                   1173 ;mini/cpm.c:184: scr[1] = '\0';
+      0004F5 59               [ 4] 1174 	ld	e, c
+      0004F6 50               [ 4] 1175 	ld	d, b
+      0004F7 13               [ 6] 1176 	inc	de
+      0004F8 AF               [ 4] 1177 	xor	a, a
+      0004F9 12               [ 7] 1178 	ld	(de), a
+                           0004FA  1179 	C$cpm.c$185$5_1$42	= .
+                                   1180 	.globl	C$cpm.c$185$5_1$42
+                                   1181 ;mini/cpm.c:185: _prints(scr, width, flags);
+      0004FA DD 6E FE         [19] 1182 	ld	l, -2 (ix)
+                                   1183 ;	spillPairReg hl
+                                   1184 ;	spillPairReg hl
+      0004FD DD 66 FF         [19] 1185 	ld	h, -1 (ix)
+                                   1186 ;	spillPairReg hl
+                                   1187 ;	spillPairReg hl
+      000500 E5               [11] 1188 	push	hl
+      000501 DD 6E F6         [19] 1189 	ld	l, -10 (ix)
+                                   1190 ;	spillPairReg hl
+                                   1191 ;	spillPairReg hl
+      000504 DD 66 F7         [19] 1192 	ld	h, -9 (ix)
+                                   1193 ;	spillPairReg hl
+                                   1194 ;	spillPairReg hl
+      000507 E5               [11] 1195 	push	hl
+      000508 C5               [11] 1196 	push	bc
+      000509 CDr75r00         [17] 1197 	call	__prints
+      00050C F1               [10] 1198 	pop	af
+      00050D F1               [10] 1199 	pop	af
+      00050E F1               [10] 1200 	pop	af
+                           00050F  1201 	C$cpm.c$186$5_1$42	= .
+                                   1202 	.globl	C$cpm.c$186$5_1$42
+                                   1203 ;mini/cpm.c:186: break;
+      00050F 18 63            [12] 1204 	jr	00133$
+                           000511  1205 	C$cpm.c$188$5_1$42	= .
+                                   1206 	.globl	C$cpm.c$188$5_1$42
+                                   1207 ;mini/cpm.c:188: case('s'):              /* string */
+      000511                       1208 00119$:
+                           000511  1209 	C$cpm.c$189$5_1$42	= .
+                                   1210 	.globl	C$cpm.c$189$5_1$42
+                                   1211 ;mini/cpm.c:189: u.s = va_arg(ap, char *);
+      000511 21 02 00         [10] 1212 	ld	hl, #2
+      000514 39               [11] 1213 	add	hl, sp
+      000515 EB               [ 4] 1214 	ex	de, hl
+      000516 DD 71 F4         [19] 1215 	ld	-12 (ix), c
+      000519 DD 70 F5         [19] 1216 	ld	-11 (ix), b
+      00051C DD 4E F8         [19] 1217 	ld	c, -8 (ix)
+      00051F DD 46 F9         [19] 1218 	ld	b, -7 (ix)
+      000522 0A               [ 7] 1219 	ld	a, (bc)
+      000523 DD 77 FA         [19] 1220 	ld	-6 (ix), a
+      000526 03               [ 6] 1221 	inc	bc
+      000527 0A               [ 7] 1222 	ld	a, (bc)
+      000528 DD 77 FB         [19] 1223 	ld	-5 (ix), a
+      00052B 6B               [ 4] 1224 	ld	l, e
+      00052C 62               [ 4] 1225 	ld	h, d
+      00052D DD 7E FA         [19] 1226 	ld	a, -6 (ix)
+      000530 77               [ 7] 1227 	ld	(hl), a
+      000531 23               [ 6] 1228 	inc	hl
+      000532 DD 7E FB         [19] 1229 	ld	a, -5 (ix)
+      000535 77               [ 7] 1230 	ld	(hl), a
+                           000536  1231 	C$cpm.c$191$5_1$42	= .
+                                   1232 	.globl	C$cpm.c$191$5_1$42
+                                   1233 ;mini/cpm.c:191: _prints(u.s ? u.s : "(null)", width, flags);
+      000536 1A               [ 7] 1234 	ld	a, (de)
+      000537 DD 77 FC         [19] 1235 	ld	-4 (ix), a
+      00053A 13               [ 6] 1236 	inc	de
+      00053B 1A               [ 7] 1237 	ld	a, (de)
+      00053C DD 77 FD         [19] 1238 	ld	-3 (ix), a
+      00053F DD 7E FB         [19] 1239 	ld	a, -5 (ix)
+      000542 DD B6 FA         [19] 1240 	or	a, -6 (ix)
+      000545 20 08            [12] 1241 	jr	NZ, 00137$
+      000547 DD 36 FCr85      [19] 1242 	ld	-4 (ix), #<(___str_0)
+      00054B DD 36 FDs05      [19] 1243 	ld	-3 (ix), #>(___str_0)
+      00054F                       1244 00137$:
+      00054F DD 6E FE         [19] 1245 	ld	l, -2 (ix)
+                                   1246 ;	spillPairReg hl
+                                   1247 ;	spillPairReg hl
+      000552 DD 66 FF         [19] 1248 	ld	h, -1 (ix)
+                                   1249 ;	spillPairReg hl
+                                   1250 ;	spillPairReg hl
+      000555 E5               [11] 1251 	push	hl
+      000556 DD 6E F6         [19] 1252 	ld	l, -10 (ix)
+                                   1253 ;	spillPairReg hl
+                                   1254 ;	spillPairReg hl
+      000559 DD 66 F7         [19] 1255 	ld	h, -9 (ix)
+                                   1256 ;	spillPairReg hl
+                                   1257 ;	spillPairReg hl
+      00055C E5               [11] 1258 	push	hl
+      00055D DD 6E FC         [19] 1259 	ld	l, -4 (ix)
+                                   1260 ;	spillPairReg hl
+                                   1261 ;	spillPairReg hl
+      000560 DD 66 FD         [19] 1262 	ld	h, -3 (ix)
+                                   1263 ;	spillPairReg hl
+                                   1264 ;	spillPairReg hl
+      000563 E5               [11] 1265 	push	hl
+      000564 CDr75r00         [17] 1266 	call	__prints
+      000567 F1               [10] 1267 	pop	af
+      000568 F1               [10] 1268 	pop	af
+      000569 F1               [10] 1269 	pop	af
+                           00056A  1270 	C$cpm.c$192$5_1$42	= .
+                                   1271 	.globl	C$cpm.c$192$5_1$42
+                                   1272 ;mini/cpm.c:192: break;
+      00056A 18 08            [12] 1273 	jr	00133$
+                           00056C  1274 	C$cpm.c$198$4_1$43	= .
+                                   1275 	.globl	C$cpm.c$198$4_1$43
+                                   1276 ;mini/cpm.c:198: esc:
+      00056C                       1277 00122$:
+                           00056C  1278 	C$cpm.c$199$4_1$43	= .
+                                   1279 	.globl	C$cpm.c$199$4_1$43
+                                   1280 ;mini/cpm.c:199: putchar(*format);
+      00056C 06 00            [ 7] 1281 	ld	b, #0x00
+      00056E 4F               [ 4] 1282 	ld	c, a
+      00056F C5               [11] 1283 	push	bc
+      000570 CDr00r00         [17] 1284 	call	_putchar
+      000573 F1               [10] 1285 	pop	af
+      000574                       1286 00133$:
+                           000574  1287 	C$cpm.c$133$2_1$33	= .
+                                   1288 	.globl	C$cpm.c$133$2_1$33
+                                   1289 ;mini/cpm.c:133: for (; *format != 0; ++format) {
+      000574 DD 34 04         [23] 1290 	inc	4 (ix)
+      000577 C2r84r02         [10] 1291 	jp	NZ,00132$
+      00057A DD 34 05         [23] 1292 	inc	5 (ix)
+      00057D C3r84r02         [10] 1293 	jp	00132$
+      000580                       1294 00134$:
+                           000580  1295 	C$cpm.c$202$2_1$30	= .
+                                   1296 	.globl	C$cpm.c$202$2_1$30
+                                   1297 ;mini/cpm.c:202: }
+      000580 DD F9            [10] 1298 	ld	sp, ix
+      000582 DD E1            [14] 1299 	pop	ix
+                           000584  1300 	C$cpm.c$202$2_1$30	= .
+                                   1301 	.globl	C$cpm.c$202$2_1$30
+                           000584  1302 	XG$printf$0$0	= .
+                                   1303 	.globl	XG$printf$0$0
+      000584 C9               [10] 1304 	ret
+                           000585  1305 Fcpm$__str_0$0_0$0 == .
+      000585                       1306 ___str_0:
+      000585 28 6E 75 6C 6C 29     1307 	.ascii "(null)"
+      00058B 00                    1308 	.db 0x00
+                                   1309 	.area _CODE
+                                   1310 	.area _INITIALIZER
+                                   1311 	.area _CABS (ABS)

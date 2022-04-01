@@ -1,0 +1,27 @@
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180 / ZX-Next / eZ80), page 1.
+Hexadecimal [24-Bits]
+
+Symbol Table
+
+    .__.$$$.=  002710 L   |     .__.ABS.=  000000 G   |     .__.CPU.=  000000 L
+    .__.H$L.=  000000 L   |     EF9367_C=  000023     |     EF9367_C=  000020 
+    EF9367_C=  000005     |     EF9367_C=  000007     |     EF9367_C=  000004 
+    EF9367_C=  000006     |     EF9367_C=  00000F     |     EF9367_C=  000001 
+    EF9367_C=  000000     |     EF9367_C=  000002     |     EF9367_C=  000003 
+    EF9367_C=  00000C     |     EF9367_C=  00000D     |     EF9367_C=  00000E 
+    EF9367_C=  000021     |     EF9367_C=  000001     |     EF9367_C=  000002 
+    EF9367_C=  000022     |     EF9367_C=  000000     |     EF9367_D=  000025 
+    EF9367_D=  000027     |     EF9367_S=  00002F     |     EF9367_S=  000004 
+    EF9367_X=  000028     |     EF9367_X=  000029     |     EF9367_Y=  00002A 
+    EF9367_Y=  00002B     |     GDP_HEIG=  000100     |     GDP_WIDT=  000400 
+    PIO_GR_C=  000030     |   0 __gdp_ex   000007 R   |   0 __gdp_se   00000F GR
+  0 __gdp_se   000019 GR  |   0 __gdp_wa   000000 R   |   0 _gdp_cls   000042 GR
+  0 _gdp_ini   000036 GR
+
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180 / ZX-Next / eZ80), page 2.
+Hexadecimal [24-Bits]
+
+Area Table
+
+   0 _CODE      size     48   flags    0
+

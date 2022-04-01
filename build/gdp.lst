@@ -1,0 +1,211 @@
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180 / ZX-Next / eZ80), page 1.
+Hexadecimal [24-Bits]
+
+
+
+                                      1 		;; gdp.s
+                                      2         ;; 
+                                      3         ;; a library of primitives for the thompson ef9367 card (GDP)
+                                      4         ;; 
+                                      5         ;; TODO: 
+                                      6         ;;  - 
+                                      7 		;;
+                                      8         ;; MIT License (see: LICENSE)
+                                      9         ;; copyright (c) 2022 tomaz stih
+                                     10         ;;
+                                     11 		;; 22.03.2022    tstih
+                                     12 		.module gdp
+                                     13 
+                                     14 		.globl	_gdp_init
+                                     15         .globl  _gdp_cls
+                                     16         
+                                     17 
+                                     18         ;; --- include ef9367 ports and regs definitions ----------------------
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180 / ZX-Next / eZ80), page 2.
+Hexadecimal [24-Bits]
+
+
+
+                                     19         .include "gdp.inc"
+                                      1 		;; gdp.s
+                                      2         ;; 
+                                      3         ;; thompson ef9367 graphics display processor consts. 
+                                      4 		;;
+                                      5         ;; MIT License (see: LICENSE)
+                                      6         ;; copyright (c) 2022 tomaz stih
+                                      7         ;;
+                                      8 		;; 22.03.2022    tstih
+                                      9 
+                                     10 
+                                     11         ;; --- 0x20 - W: command, R:the status register -----------------------     
+                           000020    12         .equ	EF9367_CMD,             0x20    ; command register (W)
+                           000000    13         .equ    EF9367_CMD_DMOD_SET,    0x00    ; select pen (set bit 1 of CR1)
+                           000001    14         .equ    EF9367_CMD_DMOD_CLR,    0x01    ; select eraser (clr bit 1 of CR1)
+                           000002    15         .equ    EF9367_CMD_PEN_DOWN,    0x02    ; pen/eraser down
+                           000003    16         .equ    EF9367_CMD_PEN_UP,      0x03    ; pen/eraser up
+                           000004    17         .equ    EF9367_CMD_CLS,         0x04    ; clear screen
+                           000005    18         .equ    EF9367_CMD_00,          0x05    ; x=y=0
+                           000006    19         .equ    EF9367_CMD_CLS00,       0x06    ; clear screen, x=y=0
+                           000007    20         .equ    EF9367_CMD_CLEAR,       0x07    ; cls, CSIZE to min., all regs to 0
+                           00000C    21         .equ    EF9367_CMD_SCAN,        0x0c    ; screen scan
+                           00000D    22         .equ    EF9367_CMD_X0,          0x0d    ; x=0
+                           00000E    23         .equ    EF9367_CMD_Y0,          0x0e    ; y=0
+                           00000F    24         .equ    EF9367_CMD_DMEM,        0x0f    ; direct memory access 4 next cyc.
+                                     25 
+                                     26 
+                                     27         ;; --- 0x21 - RW: control register, bit 7 is reserved (always 0) ------
+                           000021    28         .equ    EF9367_CR1,             0x21
+                           000001    29         .equ    EF9367_CR1_PEN_DOWN,    0x01    ; 1 pen down, 0 pen up
+                           000002    30         .equ    EF9367_CR1_SET_PEN,     0x02    ; 1 pen, 0 eraser
+                                     31 
+                                     32 
+                                     33         ;; --- 0x22 - RW: control register 2, bit 7-4 are not used ------------
+                           000022    34         .equ    EF9367_CR2,             0x22
+                                     35         ;; bits 1 and 2 are vector type
+                           000000    36         .equ    EF9367_CR2_SOLID,       0b00    ; solid vector type
+                                     37 
+                                     38 
+                                     39         ;; --- 0x23 - RW: character size --------------------------------------
+                                     40         ;; low nibble is scaling on x, high nibble is scaling on y)
+                           000023    41         .equ    EF9367_CH_SIZE,         0x23
+                                     42 
+                                     43 
+                                     44         ;; --- 0x25 - RW: delta x ---------------------------------------------
+                           000025    45         .equ    EF9367_DX,              0x25
+                                     46         ;; --- 0x27 - RW: delta y ---------------------------------------------
+                           000027    47         .equ    EF9367_DY,              0x27
+                                     48 
+                                     49 
+                                     50         ;; --- 0x28 - RW: x pos hi --------------------------------------------
+                           000028    51         .equ    EF9367_XPOS_HI,         0x28
+                                     52         ;; --- 0x29 - RW: x pos low -------------------------------------------
+                           000029    53         .equ    EF9367_XPOS_LO,         0x29
+                                     54         ;; --- 0x2a - RW: y pos hi --------------------------------------------
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180 / ZX-Next / eZ80), page 3.
+Hexadecimal [24-Bits]
+
+
+
+                           00002A    55         .equ    EF9367_YPOS_HI,         0x2a
+                                     56         ;; --- 0x2b - RW: y pos low -------------------------------------------
+                           00002B    57         .equ    EF9367_YPOS_LO,         0x2b
+                                     58 
+                                     59 
+                                     60         ;; --- 0x2f - R:the status (NI) register and its bitmask --------------
+                           00002F    61         .equ    EF9367_STS_NI,          0x2f    ; status reg. (no interrupt reset)
+                           000004    62         .equ    EF9367_STS_NI_READY,    0x04    ; low when executing command
+                                     63 
+                                     64 
+                                     65         ;; --- 0x30 - R/W:PIO gr. common register -----------------------------
+                           000030    66         .equ    PIO_GR_CMN,             0x30
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180 / ZX-Next / eZ80), page 4.
+Hexadecimal [24-Bits]
+
+
+
+                                     20 
+                                     21 
+                                     22         ;; --- limits ---------------------------------------------------------
+                           000400    23         .equ    GDP_WIDTH,          1024
+                           000100    24         .equ    GDP_HEIGHT,         256
+                                     25 
+                                     26 
+                                     27         .area	_CODE
+                                     28         ;; wait for the GDP to finish previous operation
+                                     29         ;; don't touch interrupts!
+                                     30         ;; affects: a
+      000000                         31 __gdp_wait_ready:
+                                     32         ;; make sure GDP is free
+      000000 DB 2F            [11]   33         in      a,(EF9367_STS_NI)       ; read the status register
+      000002 E6 04            [ 7]   34         and     #EF9367_STS_NI_READY    ; get ready flag, it's the same bit
+      000004 28 FA            [12]   35         jr      z,__gdp_wait_ready
+      000006 C9               [10]   36         ret
+                                     37 
+                                     38 
+                                     39         ;; execute command in a
+                                     40         ;; input:	a=command
+                                     41         ;; affects: -
+      000007                         42 __gdp_exec_cmd:
+      000007 F5               [11]   43         push    af
+      000008 CD 00 00         [17]   44         call    __gdp_wait_ready        ; wait gdp
+      00000B F1               [10]   45         pop     af
+      00000C D3 20            [11]   46         out     (#EF9367_CMD), a        ; exec. command
+      00000E C9               [10]   47         ret
+                                     48 
+                                     49 
+                                     50         ;; set deltas to dx, dy
+                                     51         ;; inputs:  b=dy, c=dx
+                                     52         ;; affect:  a, bc
+      00000F                         53 __gdp_set_dxdy::
+      00000F CD 00 00         [17]   54         call    __gdp_wait_ready
+      000012 78               [ 4]   55         ld      a,b
+      000013 D3 27            [11]   56         out     (#EF9367_DY),a
+      000015 79               [ 4]   57         ld      a,c
+      000016 D3 25            [11]   58         out     (#EF9367_DX),a
+      000018 C9               [10]   59         ret
+                                     60 
+                                     61 
+                                     62         ;; move the cursor to x,y
+                                     63         ;; notes:   y is transformed (ef9367 has negative axis!
+                                     64         ;; inputs:  hl=x, de=y
+                                     65         ;; affect:  af
+      000019                         66 __gdp_set_xy::
+                                     67         ;; store hl and de regs
+      000019 D5               [11]   68         push    de
+      00001A E5               [11]   69         push    hl
+                                     70         ;; reverse y coordinate
+      00001B E5               [11]   71         push    hl                      ; store x
+      00001C 21 FF 00         [10]   72         ld      hl,#(GDP_HEIGHT-1)      ; hl=max y
+      00001F B7               [ 4]   73         or      a                       ; clear carry
+      000020 ED 52            [15]   74         sbc     hl,de                   ; hl=maxy-y
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180 / ZX-Next / eZ80), page 5.
+Hexadecimal [24-Bits]
+
+
+
+      000022 D1               [10]   75         pop     de                      ; de=x
+      000023 EB               [ 4]   76         ex      de,hl                   ; switch
+                                     77         ;; wait for gdp
+      000024 CD 00 00         [17]   78         call    __gdp_wait_ready
+      000027 7D               [ 4]   79         ld      a,l
+      000028 D3 29            [11]   80         out     (EF9367_XPOS_LO),a
+      00002A 7C               [ 4]   81         ld      a,h
+      00002B D3 28            [11]   82         out     (EF9367_XPOS_HI),a
+      00002D 7B               [ 4]   83         ld      a,e
+      00002E D3 2B            [11]   84         out     (EF9367_YPOS_LO),a
+      000030 7A               [ 4]   85         ld      a,d
+      000031 D3 2A            [11]   86         out     (EF9367_YPOS_HI),a
+                                     87         ;; restore de and hl
+      000033 E1               [10]   88         pop     hl
+      000034 D1               [10]   89         pop     de
+      000035 C9               [10]   90         ret
+                                     91 
+                                     92 
+                                     93         ;; ---------------
+                                     94 		;; void gdp_init()
+                                     95         ;; ---------------
+                                     96         ;; initializes the ef9367, sets the 1024x256 graphics mode
+                                     97         ;; no waiting for gdp bcs no command should be executing!
+                                     98         ;; affect:  a, bc, flags
+      000036                         99 _gdp_init::
+                                    100         ;; pen down, set default drawing mode to pen
+      000036 3E 03            [ 7]  101         ld      a,#(EF9367_CR1_PEN_DOWN|EF9367_CR1_SET_PEN) 
+      000038 D3 21            [11]  102         out     (EF9367_CR1),a          ; control reg 1 to default
+      00003A AF               [ 4]  103         xor     a                       ; a=0
+      00003B D3 22            [11]  104         out     (EF9367_CR2),a          ; control reg 2 to default
+      00003D D3 23            [11]  105         out     (EF9367_CH_SIZE),a      ; no scaling!
+                                    106         ;; this sets resolution to 1024x256
+                                    107         ;; and default page to 0
+      00003F D3 30            [11]  108 		out     (PIO_GR_CMN),a
+      000041 C9               [10]  109         ret
+                                    110 
+                                    111 
+                                    112         ;; ------------------
+                                    113 		;; void _ef9367_cls()
+                                    114         ;; ------------------
+                                    115 		;; clear graphic screen
+                                    116         ;; affect:  af
+      000042                        117 _gdp_cls::
+      000042 3E 04            [ 7]  118 		ld      a,#EF9367_CMD_CLS
+      000044 CD 07 00         [17]  119 		call    __gdp_exec_cmd
+      000047 C9               [10]  120         ret

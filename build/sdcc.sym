@@ -1,0 +1,19 @@
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180 / ZX-Next / eZ80), page 1.
+Hexadecimal [24-Bits]
+
+Symbol Table
+
+    .__.$$$.=  002710 L   |     .__.ABS.=  000000 G   |     .__.CPU.=  000000 L
+    .__.H$L.=  000000 L   |   0 .atmost7   000018 R   |   0 .dvloop    000030 R
+  0 .dvloop7   00001C R   |   0 .moretha   000028 R   |   0 .nodrop    000037 R
+  0 .nodrop7   000021 R   |   0 __divu16   000012 R   |   0 __divu8    00000F R
+  0 __divuch   000008 GR  |   0 __divuin   000000 GR  |   0 __moduch   000041 GR
+  0 __moduin   00004D GR
+
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180 / ZX-Next / eZ80), page 2.
+Hexadecimal [24-Bits]
+
+Area Table
+
+   0 _CODE      size     58   flags    0
+

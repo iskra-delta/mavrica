@@ -1,0 +1,14 @@
+-mjwx
+-i /home/tomaz/Work/mavrica/build/mavrica.ihx
+-b _CODE = 0x0100
+-y
+-k /home/tomaz/Work/mavrica/lib
+/home/tomaz/Work/mavrica/build/crt0.rel
+/home/tomaz/Work/mavrica/build/main.rel
+/home/tomaz/Work/mavrica/build/cpm.rel
+/home/tomaz/Work/mavrica/build/bdos.rel
+/home/tomaz/Work/mavrica/build/sdcc.rel
+/home/tomaz/Work/mavrica/build/gdp.rel
+/home/tomaz/Work/mavrica/build/args.rel
+
+-e
