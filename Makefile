@@ -17,6 +17,7 @@ export INC_DIR		=	$(ROOT)/include \
 						$(LIB_DIR)/include
 export SRC_DIR		=	$(ROOT)/src
 export DISK_DIR		=	$(ROOT)/disk
+export TEST_DIR		=	$(ROOT)/test
 
 # Globa settings: 8 bit tools.
 export CC			=	sdcc
@@ -61,6 +62,7 @@ mkdisk:
 	cp $(DISK_DIR)/diskdefs .
 	mkfs.cpm -f idpfdd -t $(FLOPPY)
 	cpmcp -f idpfdd $(FLOPPY) $(BUILD_DIR)/mavrica.com 0:mavrica.com
+	cpmcp -f idpfdd $(FLOPPY) $(TEST_DIR)/*.scr 0:
 	rm ./diskdefs
 
 .PHONY: install

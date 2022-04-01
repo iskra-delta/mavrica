@@ -12,6 +12,7 @@
         .globl  __divuchar
         .globl  __moduchar
         .globl  __moduint
+        .globl  ___sdcc_call_hl
 
         .area   _CODE
  __divuint::
@@ -89,4 +90,6 @@ __moduint::
         push    af
         call    __divu16
         ex      de,hl
-        ret    
+        ret
+___sdcc_call_hl:
+	    jp	(hl)

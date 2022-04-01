@@ -12,7 +12,7 @@
 		.module crt0
 
        	.globl  _main
-        .globl  _heap
+        .globl  __heap
 
 		.area 	_CODE
 start:
@@ -72,4 +72,4 @@ stack:
 
 
         .area   _HEAP
-_heap::                                 ; start of our heap.
+__heap::                                ; start of our heap.

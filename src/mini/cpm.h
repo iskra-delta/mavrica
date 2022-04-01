@@ -12,8 +12,6 @@
 #ifndef __CPM_H__
 #define __CPM_H__
 
-
-
 extern int putchar(int c);
 extern int puts(const char *s);
 extern void printf(const char *format, ...);
