@@ -9,7 +9,7 @@
  * 31.03.2022   tstih
  *
  */
-#include <mini/bdos.h>
+#include <ulibc/bdos.h>
 
 int putchar(int c) {
     /* Extend newline. */

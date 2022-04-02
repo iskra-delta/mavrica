@@ -12,17 +12,17 @@ K := $(foreach exec,$(REQUIRED),\
 export ROOT 		=	$(realpath .)
 export BUILD_DIR	=	$(ROOT)/build
 export BIN_DIR		=	$(ROOT)/bin
+export SRC_DIR		=	$(ROOT)/src
 export LIB_DIR		=	$(ROOT)/lib
 export INC_DIR		=	$(ROOT)/include \
-						$(LIB_DIR)/include
-export SRC_DIR		=	$(ROOT)/src
+						$(LIB_DIR) \
+						$(SRC_DIR)
 export DISK_DIR		=	$(ROOT)/disk
-export TEST_DIR		=	$(ROOT)/test
 
 # Globa settings: 8 bit tools.
 export CC			=	sdcc
 export CFLAGS		=	--std-c11 -mz80 --debug --nostdinc \
-						$(addprefix -I,$(SRC_DIR)) $(addprefix -I,$(INC_DIR))
+						$(addprefix -I,$(INC_DIR))
 export AS			=	sdasz80
 export ASFLAGS		=	-xlos -g
 export AR			=	sdar
@@ -30,8 +30,10 @@ export ARFLAGS		=	-rc
 export LD			=	sdcc
 export LDFLAGS		=	-mz80 -Wl -y --code-loc 0x100 \
 						--no-std-crt0 --nostdlib --nostdinc \
-						$(addprefix -L,$(LIB_DIR)) -p
+						$(addprefix -L,$(BUILD_DIR)) \
+						-lusdcc -lulibc -lugdp -p
 export OBJCOPY		=	sdobjcopy
+export CRT0			=	crt0
 
 # Data segment fix (relink due to SDCC bug)
 export L2           =   sdldz80
@@ -43,10 +45,14 @@ export FLOPPY		=	$(BIN_DIR)/fddb.img
 
 # Rules.
 .PHONY: all
-all:	mkdirs $(SRC_DIR) mkdisk
+all:	mkdirs $(LIB_DIR) $(SRC_DIR) mkdisk
 
 .PHONY: $(SRC_DIR)
 $(SRC_DIR):
+	$(MAKE) -C $@
+
+.PHONY: $(LIB_DIR)
+$(LIB_DIR):
 	$(MAKE) -C $@
 
 .PHONY: mkdirs
@@ -62,7 +68,7 @@ mkdisk:
 	cp $(DISK_DIR)/diskdefs .
 	mkfs.cpm -f idpfdd -t $(FLOPPY)
 	cpmcp -f idpfdd $(FLOPPY) $(BUILD_DIR)/mavrica.com 0:mavrica.com
-	cpmcp -f idpfdd $(FLOPPY) $(TEST_DIR)/*.scr 0:
+	cpmcp -f idpfdd $(FLOPPY) $(DISK_DIR)/extras/*.* 0:
 	rm ./diskdefs
 
 .PHONY: install

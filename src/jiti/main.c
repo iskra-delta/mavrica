@@ -9,7 +9,7 @@
  * 27.03.2022   tstih
  *
  */
-#include <mini/cpm.h>
+#include <stdio.h>
 
 int main(int argc, char *argv[]) {
 

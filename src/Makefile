@@ -5,7 +5,6 @@ vpath %.s $(SDIRS)
 vpath %.h $(SDIRS)
 
 # Source files.
-CRT0	=	crt0
 C_SRCS	=	$(wildcard */*.c)
 S_SRCS	=	$(filter-out $(CRT0).s, $(wildcard */*.s))
 OBJS	=	$(addprefix $(BUILD_DIR)/, \
@@ -29,7 +28,7 @@ $(BUILD_DIR)/$(TARGET).ihx: $(BUILD_DIR)/$(CRT0).rel $(OBJS)
 	$(L2FIX) $(BUILD_DIR)/$(TARGET).lk > $(BUILD_DIR)/$(TARGET).link
 	$(L2) $(L2FLAGS) $(BUILD_DIR)/$(TARGET).link
 
-$(BUILD_DIR)/$(CRT0).rel: $(CRT0).s
+$(BUILD_DIR)/$(CRT0).rel: $(LIB_DIR)/ulibc/$(CRT0).s
 	$(AS) $(ASFLAGS) $(BUILD_DIR)/$(@F) $<
 
 $(BUILD_DIR)/%.rel: %.c

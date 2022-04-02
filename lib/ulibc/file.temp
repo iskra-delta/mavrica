@@ -1,0 +1,130 @@
+/*
+ * file.h
+ *
+ * Load file into memory function.;
+ *
+ * MIT License (see: LICENSE)
+ * copyright (c) 2022 tomaz stih
+ *
+ * 01.04.2022   tstih
+ *
+ */
+#include <ulibc/bdos.h>
+#include <ulibc/mem.h>
+
+#ifndef NULL
+#define NULL (void *)0
+#endif
+
+#define DMA_SIZE        128
+
+typedef struct fcb_s {
+	unsigned char drive;        /* 0 -> Searches in default disk drive */
+	char filename[8];           /* file name ('?' means any char) */
+	char filetype[3];           /* file type */
+	unsigned char ex;           /* extent */
+   	unsigned int resv;          /* reserved for CP/M */
+	unsigned char rc;           /* records used in extent */
+	unsigned char alb[16];      /* allocation blocks used */
+	unsigned char seqreq;       /* sequential records to read/write */
+	unsigned int rrec;          /* rand record to read/write */ 
+	unsigned char rrecob;       /* rand record overflow byte (MS) */
+} fcb_t; /* File Control Block */
+
+/* Convert simple filename to fcb name. */
+static void _to_fcb_name(char *dst, char *src, unsigned char maxlen) {
+    char c;
+    unsigned char idx;
+    /* Pure ascii, uppercase, and space padded. */
+    for (idx = 0; (idx < maxlen) && (src[idx] != '\0'); idx++) {
+        c = src[idx] & 0x7F;
+        if (c >= 0x61 && c <= 0x7a)
+            c -= 0x20;
+        dst[idx] = c;
+    }
+    while (idx < maxlen) {
+        dst[idx] = ' '; // Pad the filename
+        idx++;
+    }
+}
+
+/* Load entire file into memory. */
+void *fload(const char *path) {
+    
+    /* Extract extension from name. */
+    char drive, fname[9], ext[4];
+    unsigned char fni=0, exi=0;
+    if (path[1]==':') { drive=path[0]; path+=2; }
+    while (*path && *path!='.') fname[fni++]=*path++;
+    while(*path) ext[exi++]=*path++;
+    fname[fni]=0; ext[exi]=0;
+    
+    /* Create fcb... */
+    fcb_t *fcb=malloc(sizeof(fcb_t));
+    
+    /* Make fcb names... */
+    _to_fcb_name(fcb->filename, fname, 8);
+    _to_fcb_name(fcb->filetype, ext, 3);
+    fcb->drive=drive-'A'+1;
+
+    /* Get file len. */
+    bdos_ret_t result;
+    bdosret(F_SIZE,(unsigned int)fcb,&result);
+    if (result.reta==BDOS_FAILURE) {
+        free(fcb); /* Release allocated memory. */
+        return NULL;
+    }
+    unsigned recs = fcb->rrec - 1;
+
+    /* Now open the same file. */
+    fcb->seqreq=0xff; /* Get last byte read. */
+    bdosret(F_OPEN,(unsigned int)fcb,&result);
+    if (result.reta==BDOS_FAILURE) {
+        free(fcb);
+        return NULL;
+    }
+
+    /* Calculate exact file size! */
+    unsigned int fsize = DMA_SIZE * ( recs - 1 );
+    if (fcb->seqreq==0 || fcb->seqreq>DMA_SIZE)
+        fsize+=DMA_SIZE;
+    else
+        fsize+=fcb->seqreq;
+
+    /* Allocate space! */
+    unsigned char *data=malloc(fsize);
+
+    /* Set the DMA! */
+    unsigned char *dma=malloc(DMA_SIZE + 1);
+    /* Make sure DMA is set correctly. */
+    bdos(F_DMAOFF,(unsigned int)dma);
+
+    /* Read it all!*/
+    unsigned int bread=0, count=fsize;
+    while (bread < count) {
+        /* Read next block */
+        bdosret(F_READ,(uint16_t)fcb,&result);
+        if (result.reta==1)  /* end of file? */
+            break;
+        else if (result.reta!=0) { /* error */ 
+            free(dma);
+            free(fcb);
+            free(data);
+            return NULL;
+        }
+        /* Copy to data. */
+
+        /* Reduce count. */
+        count-=DMA_SIZE;
+    }
+
+    /* Close. */
+    bdosret(F_CLOSE,(unsigned int)fcb,&result);
+
+    /* Release all structures. */
+    free(dma);
+    free(fcb);
+
+    /* And return newly obtained block. */
+    return data;
+}

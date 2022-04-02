@@ -1,7 +1,25 @@
 		;; args.s
         ;; 
-        ;; program arguments
-		;;
+        ;; the pargs routine handles cp/m plus 3 program arguments.
+        ;; 
+        ;; NOTES:
+        ;;  program arguments start at address 0x80. all arguments 
+        ;;  are uppercase. the layout is as follows.
+        ;;
+        ;;  0   1     2                           n-1         n
+        ;;  ┌───┬─────┬────────────────────────────┬──────────┐
+        ;;  │len│space│program arguments           │terminator│
+        ;;  └───┴─────┴────────────────────────────┴──────────┘
+        ;;
+        ;;  the first byte is length. if > 0 then second byte
+        ;;  is a space (0x20), followed by space delimited arguments,
+        ;;  and a terminator (0x00). 
+        ;;
+        ;;  the parser does not allocate extra space for arguments,
+        ;;  but instead replaces spaces in program arguments with 0x00
+        ;;  to create multiple zero terminated strings and then points
+        ;;  the argv[] to addresses following 0x80.
+        ;;
         ;; MIT License (see: LICENSE)
         ;; copyright (c) 2022 tomaz stih
         ;;

@@ -9,7 +9,7 @@
  * 05.06.2012   tstih
  *
  */
-#include <mini/list.h>
+#include <ulibc/list.h>
 
 unsigned char _list_match_eq(list_header_t *p, unsigned int arg) {
         return ( ((unsigned int)p) == arg );

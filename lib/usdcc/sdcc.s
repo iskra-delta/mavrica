@@ -1,6 +1,7 @@
 		;; sdcc.s
         ;; 
-        ;; minimal sdcc library
+        ;; minimal sdcc library contains only functions to support
+        ;; basic integer operations.
 		;;
         ;; MIT License (see: LICENSE)
         ;; copyright (c) 2022 tomaz stih
@@ -32,7 +33,6 @@ __divuchar::
 __divu8:
         ld      h,#0x00
         ld      d,h
-      
 __divu16:
         ld      a,e
         and     a,#0x80

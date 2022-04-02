@@ -9,22 +9,25 @@
  * 25.05.2012   tstih
  *
  */
-#include <mini/mem.h>
+#include <ulibc/mem.h>
 
-unsigned char _match_free_block(list_header_t *p, unsigned int size)
+/* Find first unallocated block */
+static unsigned char _match_free_block(list_header_t *p, unsigned int size)
 {
     block_t *b = (block_t *)p;
     return !(b->stat & ALLOCATED) && b->size >= size;
 }
 
-void _merge_with_next(block_t *b)
+/* Merge two blocks. */
+static void _merge_with_next(block_t *b)
 {
     block_t *bnext = b->hdr.next;
     b->size += (BLK_SIZE + bnext->size);
     b->hdr.next = bnext->hdr.next;
 }
 
-void _split(block_t *b, unsigned int size)
+/* Split block (allocate part of it). */
+static void _split(block_t *b, unsigned int size)
 {
     block_t *nw;
     nw = (block_t *)((unsigned int)(b->data) + size);
@@ -37,28 +40,14 @@ void _split(block_t *b, unsigned int size)
     b->hdr.next = nw;
 }
 
-void _memory_init()
-{
-    /* Calculate free memory */
-    unsigned int size=MEM_TOP - (unsigned int)&_heap;
-    _heap_init((unsigned int)&_heap,size);
-}
-
-void _heap_init(unsigned int start, unsigned int size) {
-    /* First block is the heap. s*/
-    block_t *first = (block_t *)start;
-    first->hdr.next = NULL;
-    first->size = size - BLK_SIZE;
-    first->stat = NEW;
-}
-
-void *_alloc(unsigned int heap, unsigned int size)
+/* Allocate memory. */
+void *malloc(unsigned int size)
 {
     block_t *prev;
     block_t *b;
 
     b = (block_t *)_list_find(
-        (list_header_t *)heap,
+        (list_header_t *)&_heap,
         (list_header_t **)&prev,
         _match_free_block, size);
 
@@ -73,7 +62,8 @@ void *_alloc(unsigned int heap, unsigned int size)
         return NULL;
 }
 
-void _dealloc(unsigned int heap, void *p)
+/* Free memory. */
+void free(void *p)
 {
     block_t *prev;
     block_t *b;
@@ -82,7 +72,7 @@ void _dealloc(unsigned int heap, void *p)
     b = (block_t *)((unsigned int)p - BLK_SIZE);
 
     /* make sure it is a valid memory block by finding it */
-    if (_list_find((list_header_t *)heap, (list_header_t **)&prev, _list_match_eq, (unsigned int)b))
+    if (_list_find((list_header_t *)&_heap, (list_header_t **)&prev, _list_match_eq, (unsigned int)b))
     {
         b->stat = NEW;
         /* merge 3 blocks if possible */

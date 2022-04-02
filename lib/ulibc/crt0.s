@@ -29,6 +29,9 @@ start:
         ld      hl, (argc)
         push    hl
 
+        ;; initialize memory management
+        call    __memory_init
+
         ;; call the main
 	    call    _main
 
