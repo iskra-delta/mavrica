@@ -77,14 +77,14 @@ Our test function will accept the symbol in the `A` register and return result i
         ;;  C, D, E, flags
 test_inside_interval:
         ld      c,a                     ; store a
-        dec     e	                    ; e=e-1
         cp      e			            ; a=a-e
-	    jr      c, tidg_possible	    ; a>e
-	    jr      tidg_false              ; false
+        jr      nc, tidg_possible	    ; a>=e       
+        jr      tidg_false              ; false
 tidg_possible:
-	    cp      d
-	    jr      nc,tidg_true		    ; a<=d
-	    jr      tidg_false
+        cp      d                       ; a=a-d
+        jr      c,tidg_true		        ; a<d
+        jr      z,tidg_true             ; a=d
+        jr      tidg_false
 tidg_true:
         ;; set zero flag
         xor     a                       ; a=0, set zero flag
@@ -101,9 +101,9 @@ tidg_false:
 Now we can derive our tests by simply populating DE and A and calling this function. 
 
 ~~~asm
-test_is_digit::
-	    ld      de,#3930	            ; d='9', e='0'
-	    jr      test_inside_interval    ; ret optimization...
+test_is_digit:
+	    ld      de,#0x3930	            ; d='9', e='0'
+        jr      test_inside_interval    ; ret optimization...
 ~~~
 
 The `ret` optmization means that we jump on the test and when it returns it will go
@@ -112,14 +112,20 @@ directly to the calee so we save one call.
 In addition to that, returning values in flags is a *superoptimization* enabler. We can now chain calls like this.
 
 ~~~asm
-test_is_alpha::
+test_is_alpha:
+        call    test_is_upper
+        ret     z
+        jr      test_is_lower
+
+test_is_upper:
         ld      de,#0x5a41              ; d='Z'. e='A'
-        call    test_inside_interval
-        ret     z                       ; got it!
-        ld      de,#7a61                ; d='z', e='a'
+        jr      test_inside_interval
+
+test_is_lower:
+        ld      de,#0x7a61              ; d='z', e='a'
         jr      test_inside_interval    ; last tests' result is the end result
 
-test_is_alphanumeric::
+test_is_alphanumeric:
         call    test_is_digit
         ret     z
         jr      test_is_alpha

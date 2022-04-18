@@ -11,12 +11,17 @@
  */
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <ctype.h>
+
 #include <io.h>
 
 int main(int argc, char *argv[]) {
+    argc; argv;
 
-    
+    puts("BEGIN.\n");
 
+    puts("END.");
 
     return 0;
 }
