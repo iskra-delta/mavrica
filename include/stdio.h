@@ -27,8 +27,4 @@ extern int puts(const char *s);
 /* Print formatted string to stdout. */
 extern int printf(char *fmt, ...);
 
-/* Non standard extension to load a complete file
-   to address (or allocate new block if addr is NULL). */
-extern void *fload(const char *path, void *addr);
-
 #endif /* __STDIO_H__ */

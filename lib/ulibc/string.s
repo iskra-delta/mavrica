@@ -53,6 +53,7 @@ _memset::
         exx
         push    hl
         exx
+        push    hl                      ; store end result
         ;; zero len?
         ld      a,b
         or      c
@@ -63,4 +64,5 @@ _memset::
         pop     de
         inc     de                      ; de=hl+1
         ldir                            ; set
+        pop     hl
         ret

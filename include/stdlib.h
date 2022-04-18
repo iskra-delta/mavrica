@@ -22,6 +22,9 @@
 /* Memory allocation. */
 extern void *malloc(size_t size);
 
+/* Memory allocate and clear. */
+extern void *calloc (size_t num, size_t size);
+
 /* Free allocated memory block. */
 extern void free(void *ptr);
 

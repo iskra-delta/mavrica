@@ -1,0 +1,234 @@
+# CP/M Extended Path Parser
+
+Parsing an extended CP/M path seems a simple task. But looks can be deceiving. 
+
+ > What is an extended CP/M path? It is a CP/M filename with extension that includes the CP/M area and drive. For example, 2A:TEST.DAT.
+
+# Syntax and Semantic Analysis
+
+Here's the syntax diagram.
+
+![The railroad diagram](../docs/img/parse-path-railroad.png)
+
+A valid path also respects two additional semantic rules:
+
+ * Filename and extension are 7 bit ascii strings and cannot contain any of the following: < > . , ; : = ? * [ ] % | ( ) / \. 
+ * Max length for the filename is 8 and for extension 3. 
+
+# Implementing the Parser
+
+In the world of retro programming we can't just grab the C compiler and start coding. We are on a limited hardware! Each byte is a precious resource. Hence we need to optimize the size of our parser.
+
+## Introducing the Automata
+
+Our approach will be to convert the parse task into a Mealy machine. Our input will be character and current state, and our output a call to function to do something with it.
+
+Here's how: this is the mealy machine for parsing the area at beginning of the path.
+
+![Parse area](../docs/img/parse-path-area.png)
+
+We start in the `START` state and read the first symbol. If it is a digit we call function `APPEND AREA` and move to state `AREA`. If it is not digit then there is no area and we move to final state `END`. We persist in the `AREA` state as long as there are digits available. If we encounter anything else, we're done. 
+
+ > In case of any unexpected symbol we trigger an error.
+
+This will take any number from the start of string, but it will not perform the semantic check. A excellent place to do that is the `APPEND AREA` function. 
+
+### Encoding the Automata
+
+To implement this in the Z80 assembly we need an automata function with the table of states and transitions, a function to check if a symbol is a digit and the `APPEND AREA` function.
+
+We could create an adjacment matrix for state transitions, but this would be memory hungry. So our transitions will be a simple row of data:
+
+~~~
+<start>, <test>, <function>, <end>
+~~~
+
+Our automata can then be written as
+
+~~~
+START, 0-9, APPEND AREA, AREA
+START, , , END
+AREA, 0-9, APPEND AREA, AREA
+AREA, , , END
+~~~
+
+An empty test always succeeds, and an empty function means no function. Depending on number of states, tests, and functions we can generate quite economic table for our automata. In the above case we only need three states which can be encoded in 2 bits, we only need two function calls which require 1 bit. And one test which requires 1 bit. Hence our row for describing a transiaiton is 2 + 1 + 1 + 2 = 6 bits. The entire automata takes 3 bytes.
+
+### The Complete Automata
+
+So now we know how we'll encode the automata. It is time to create the real automata that we will use for the task.
+
+![Parse path](../docs/img/parse-path.png)
+
+We have a total of 8 states which we can encode with 3 bits. There are less then 8 functions which requires additional 3 bits. And there are 6 tests which require 3 bits. So let's write our automata into a comfortable 2 bytes per transitio or 28 bytes for all 14 transitions.
+
+### Test Functions
+
+Our test function will accept the symbol in the `A` register and return result in the zero flag. Since we have a lot of interval testing (A-Z, 0-9), our first test function will test if character in withing bounds of register DE. The actual test will be D >= A >= E.
+
+~~~asm
+        ;; test if a is within DE: D >= A >= E
+        ;; input(s):
+        ;;  A   value to test
+        ;;  DE   interval
+        ;; output(s):
+        ;;  Z    zero flag is 1 if inside, 0 if outside
+        ;; affects:
+        ;;  C, D, E, flags
+test_inside_interval:
+        ld      c,a                     ; store a
+        dec     e	                    ; e=e-1
+        cp      e			            ; a=a-e
+	    jr      c, tidg_possible	    ; a>e
+	    jr      tidg_false              ; false
+tidg_possible:
+	    cp      d
+	    jr      nc,tidg_true		    ; a<=d
+	    jr      tidg_false
+tidg_true:
+        ;; set zero flag
+        xor     a                       ; a=0, set zero flag
+        ld      a,c                     ; restore A
+        ret
+tidg_false:
+        ;; reset zero flag
+        xor     a
+        cp      #0xff
+        ld      a,c
+        ret
+~~~
+
+Now we can derive our tests by simply populating DE and A and calling this function. 
+
+~~~asm
+test_is_digit::
+	    ld      de,#3930	            ; d='9', e='0'
+	    jr      test_inside_interval    ; ret optimization...
+~~~
+
+The `ret` optmization means that we jump on the test and when it returns it will go
+directly to the calee so we save one call.
+
+In addition to that, returning values in flags is a *superoptimization* enabler. We can now chain calls like this.
+
+~~~asm
+test_is_alpha::
+        ld      de,#0x5a41              ; d='Z'. e='A'
+        call    test_inside_interval
+        ret     z                       ; got it!
+        ld      de,#7a61                ; d='z', e='a'
+        jr      test_inside_interval    ; last tests' result is the end result
+
+test_is_alphanumeric::
+        call    test_is_digit
+        ret     z
+        jr      test_is_alpha
+~~~
+
+Functionally these tests are equal to a `CP` call - they take same input and return same output. Therefore they can nicely be mixed in a chain with this instruction. 
+
+### Automata Engine
+
+The automata engine will accept `HL`, pointing to the path, `DE` pointing to the FCB structure, and `BC` pointing to the area byte to fill. It will fill the first three fields of the FCB strucure: `drive`, `filename` and `filetype` and return success or error. Here's the C call to the parse function.
+
+~~~cpp
+extern uint8_t fparse(char *path, fcb_t *fcb, uint8_t *area);
+~~~
+
+Let's write assembler code for this function.
+
+~~~asm
+        .area   _CODE
+_fparse::
+        ;; fetch args from stack
+        pop     af                      ; ignore the return address...
+        pop     hl                      ; pointer to path to hl
+        pop     de                      ; pointer to fdb to de
+        pop     bc                      ; pointer to area to bc
+        ;; restore stack and make iy point to it
+        ld      iy,#-8
+        add     iy,sp
+        ld      sp,iy
+        ;; we will use space from 2(iy) to 7(iy) as
+        ;; local variables ... overwriting arguments
+        ;; 2(iy) ... current state
+        ;; 3(iy) ... error code
+        ld      2(iy),#0                ; initial state to 2(iy)!
+        ld      3(iy),#0                ; status code is 1 (UNEXPECTED EOS)
+fpa_nextsym:
+        ;; get next symbol
+        ld      a,(hl)
+        cp      #0                      ; end of string?
+        jr      z,fpa_done
+        push    hl                      ; store hl!
+        ;; find transition
+        call    fpa_findtran
+        ;; if not found then unexpected error
+        jr      nz,fpa_done
+        ;; else transition function id is in l
+        call    fpa_execfn
+        jr      nz,fpa_done             ; if not zero then status!
+        ;; loop
+        pop     hl                      ; restore hl
+        inc     hl                      ; next symbol
+        jr      fpa_nextsym             ; and loop
+        ;; execute function in l
+fpa_execfn:
+        ld      h,a                     ; store a
+        ld      a,l
+        cp      #FPAFN_NONE
+        jr      z,fpafn_nofun           ; there is no function!
+        cp      #FPAFN_APPEND_AREA
+        call    z,fpafn_append_area
+        cp      #FPAFN_APPEND_FNAME
+        call    z,fpafn_append_fname
+        ;; if we are here, the function is invalid
+        ld      3(iy),#INVALID_FN       ; invalid function error
+        xor     a
+        cp      #1                      ; reset z flag
+        ret
+fpafn_nofun:
+        xor     a                       ; everything's allright!
+        ret
+        ;; report status and quit!
+fpa_done:
+        pop     hl                      ; restore hl
+        ld      h,l                     ; char position to h
+        ld      l, 3(iy)                ; error/success code to l
+        ret
+
+
+        ;; function: append area
+fpafn_append_area:
+        ld      a,h                     ; get char to a
+        ret
+
+fpafn_append_fname:
+        ld      a,h
+        ret
+
+fpafn_pad_fname:
+        ret
+
+fpafn_append_ext:
+        ld      a,h
+        ret
+
+fpafn_pad_ext:
+        ret
+
+fpafn_set_drive:
+        ld      a,h
+        ret
+
+fpath_stack_symbol:
+        ld      a,h
+        ret
+
+        .area   _CODE
+fpa_fsm:
+        .db     0,0
+        .db     0,0
+        .db     0,0
+efpa_fsm_end:
+~~~

@@ -62,6 +62,14 @@ void *malloc(unsigned int size)
         return NULL;
 }
 
+/* Clear/allocate memory. */
+extern void *memset(void *s, int c, unsigned int n);
+void* calloc (unsigned int num, unsigned int size) {
+    void *p=malloc(num*size);
+    if (p==NULL) return NULL;
+    return memset(p,0,num*size);
+}
+
 /* Free memory. */
 void free(void *p)
 {

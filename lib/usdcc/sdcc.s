@@ -9,6 +9,7 @@
 		;; 31.03.2022    tstih
         .module sdcc
 
+        .globl  __mulint
         .globl  __divuint
         .globl  __divuchar
         .globl  __moduchar
@@ -16,6 +17,32 @@
         .globl  ___sdcc_call_hl
 
         .area   _CODE
+
+__mulint::
+        pop     af
+        pop     bc
+        pop     de
+        push    de
+        push    bc
+        push    af
+__mul16:
+        xor     a,a
+        ld      l,a
+        or      a,b
+        ld      b,#16
+        jr      nz,2$
+        ld      b,#8
+        ld      a,c
+1$:
+        add     hl,hl
+2$:
+        rl      c
+        rla
+        jr      nc,3$
+        add     hl,de
+3$:
+        djnz    1$
+        ret
  __divuint::
         pop     af
         pop     hl

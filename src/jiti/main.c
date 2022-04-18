@@ -9,13 +9,14 @@
  * 27.03.2022   tstih
  *
  */
-#include <stdio.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <io.h>
 
 int main(int argc, char *argv[]) {
 
-    printf("Total args %d\n", argc);
-    for(int i=1;i<argc;i++)
-        printf("%s\n",argv[i]);
     
+
+
     return 0;
 }
