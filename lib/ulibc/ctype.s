@@ -77,6 +77,7 @@ ctype_args:
         ld      hl,#0                   ; init hl
         ret
 
+        ;; ----- test functions -----------------------------------------------
 test_is_alpha:
         call    test_is_upper
         ret     z
@@ -104,8 +105,9 @@ test_is_digit:
         ;; output(s):
         ;;  Z    zero flag is 1 if inside, 0 if outside
         ;; affects:
-        ;;  C, D, E, flags
+        ;;  D, E, flags
 test_inside_interval:
+        push    bc                      ; store original bc
         ld      c,a                     ; store a
         cp      e			            ; a=a-e
         jr      nc, tidg_possible	    ; a>=e       
@@ -118,11 +120,13 @@ tidg_possible:
 tidg_true:
         ;; set zero flag
         xor     a                       ; a=0, set zero flag
-        ld      a,c                     ; restore A
+        ld      a,c                     ; restore a
+        pop     bc                      ; restore bc
         ret
 tidg_false:
         ;; reset zero flag
         xor     a
-        cp      #0xff
-        ld      a,c
+        cp      #0xff                   ; reset zero flag
+        ld      a,c                     ; restore a
+        pop     bc                      ; restore original bc
         ret
