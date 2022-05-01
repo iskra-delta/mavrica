@@ -8,11 +8,20 @@
         ;; 18.04.2022    tstih
         .module ctype
 
+        ;; standard C library
         .globl  _isdigit
         .globl  _isalpha
         .globl  _isalnum
         .globl  _islower
         .globl  _isupper
+
+        ;; internal functions
+        .globl  test_is_alpha
+        .globl  test_is_digit
+        .globl  test_is_alphanumeric
+        .globl  test_is_lower
+        .globl  test_is_upper
+        .globl  test_inside_interval
 
         .area _CODE
 
