@@ -78,8 +78,6 @@ fpa_init_fcb:
         ld      sp,iy
         ;; we will use space from 2(iy) to 7(iy) as
         ;; local variables ... overwriting arguments
-        ;; 2(iy) ... current automata state
-        ;; 3(iy) ... error code
         ld      2(iy),#S_START          ; initial state to 2(iy)!
         ld      3(iy),#R_UNEXPECT       ; status is unexpected
         ld      4(iy),#DEFAULT_AREA     ; default area

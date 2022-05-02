@@ -17,7 +17,7 @@ A valid path also respects two additional semantic rules:
  * Filename and extension are 7 bit ascii strings and cannot contain any of the following: < > . , ; : = ? * [ ] % | ( ) / \. 
  * Max length for the filename is 8 and for extension 3. 
 
-## Introducing the Automata
+## Introducing the Finite-State Machine
 
 Our approach is to convert the parsing task into a [Mealy machine](https://en.wikipedia.org/wiki/Mealy_machine). Our input will be character and current state, and our output a call to function to do something with it.
 
@@ -31,19 +31,77 @@ We start in the `START` state and read the first symbol. Then, we call the funct
 
 This machine will take any number from the start of a string, but it will not perform the semantic check. An excellent place to do that is the `APPEND AREA` function. 
 
-### Encoding the Automata
+### Encoding the Finite-State Machine
 
-To implement this in the Z80 assembly we need an automata function with the table of states and transitions, a function to check if a symbol is a digit and the `APPEND AREA` function.
+To implement this in the Z80 assembly, we need to define the final state machine with the table of states and transitions. 
 
-We could create an adjacment matrix for state transitions, but this would be memory hungry. So our transitions will be a simple row of data:
+We could create an adjacent matrix for state transitions, but this would be memory hungry. So our transitions will be a simple row of data:
 
 ~~~
 <start>, <test>, <function>, <end>
 ~~~
 
-Our automata can then be written as
+Our automata can be written as:
 
 ~~~
+START, 0-9, APPEND AREA, AREA
+START, , , END
+AREA, 0-9, APPEND AREA, AREA
+AREA, , , END
+~~~
+
+Two rows contain no test, and no function. An empty test always succeeds, and an empty function means no code is executed on state transfer. Depending on number of states, tests, and functions we can optimize table encoding for our FSM. 
+
+Our states are: START, AREA, END
+Our tests are: 0-9, empty test
+Our functions are: APPEND AREA, empty function
+
+We need 2 bits to encode state and 1 bit to encode test and function. Hence our row for describing a single transiton is **2 + 1 + 1 + 2 =** 6 bits long. The entire automata takes **4 * 6** = 24 bits or 3 bytes.
+
+### The Complete Finite-State Machine
+
+So now we know how we'll encode the automata. Next, it is time to create the real finite-state machine we will use for the task.
+
+![Parse path](../docs/img/parse-path.png)
+
+We have eight states which we can encode with 3 bits. There are less than eight functions which require additional 3 bits. And there are six tests which require 3 bits. Great! We can write our automata into a comfortable 2 bytes per transition or 30 bytes for all 15 state transitions.
+
+~~~asm
+        ;; automata states
+        .equ    S_START,        0b00000000
+        .equ    S_AREA,         0b00000001
+        .equ    S_DRIVE,        0b00000010
+        .equ    S_FNAME0,       0b00000011
+        .equ    S_FNAME,        0b00000100
+        .equ    S_EXT0,         0b00000101
+        .equ    S_EXT,          0b00000110
+        .equ    S_END,          0b00000111
+
+        ;; automata test
+        .equ    T_ELSE,         0b00000000
+        .equ    T_DIGIT,        0b00010000
+        .equ    T_COLON,        0b00100000
+        .equ    T_DOT,          0b00110000
+        .equ    T_ALPHA,        0b01000000
+        .equ    T_ASCII7,       0b01010000
+        .equ    T_ZERO,         0b01100000
+
+        ;; automata functions
+        .equ    F_NONE,         0b00000000
+        .equ    F_APPEND_AREA,  0b00010000
+        .equ    F_STACK_SYM,    0b00100000
+        .equ    F_SET_DRV,      0b00110000
+        .equ    F_APPEND_FNAME, 0b01000000
+        .equ    F_APPEND_EXT,   0b01010000
+
+        ;; ----- automata definition ------------------------------------------
+        ;; each transition is 2 bytes
+        ;; byte 0:
+        ;;  TTTTSSSS    T=test, S=start
+        ;; byte 1:
+        ;;  FFFFEEEE    F=function, E=end
+        ;; example:
+        ;;  00010000, 00000001 (start=0, test=1, function=0, end=1)
 fpa_automata:
         .db     S_START + T_DIGIT,      S_AREA + F_APPEND_AREA
         .db     S_START + T_ALPHA,      S_DRIVE + F_STACK_SYM
@@ -63,189 +121,155 @@ fpa_automata:
 efpa_automata:
 ~~~
 
-An empty test always succeeds, and an empty function means no function. Depending on number of states, tests, and functions we can generate quite economic table for our automata. In the above case we only need three states which can be encoded in 2 bits, we only need two function calls which require 1 bit. And one test which requires 1 bit. Hence our row for describing a transiaiton is 2 + 1 + 1 + 2 = 6 bits. The entire automata takes 3 bytes.
+### Finite-State Machine Engine
 
-### The Complete Automata
-
-So now we know how we'll encode the automata. It is time to create the real automata that we will use for the task.
-
-![Parse path](../docs/img/parse-path.png)
-
-We have a total of 8 states which we can encode with 3 bits. There are less then 8 functions which requires additional 3 bits. And there are 6 tests which require 3 bits. So let's write our automata into a comfortable 2 bytes per transitio or 28 bytes for all 14 transitions.
-
-### Test Functions
-
-Our test function will accept the symbol in the `A` register and return result in the zero flag. Since we have a lot of interval testing (A-Z, 0-9), our first test function will test if character in withing bounds of register DE. The actual test will be D >= A >= E.
-
-~~~asm
-        ;; test if a is within DE: D >= A >= E
-        ;; input(s):
-        ;;  A   value to test
-        ;;  DE   interval
-        ;; output(s):
-        ;;  Z    zero flag is 1 if inside, 0 if outside
-        ;; affects:
-        ;;  C, D, E, flags
-test_inside_interval:
-        ld      c,a                     ; store a
-        cp      e			            ; a=a-e
-        jr      nc, tidg_possible	    ; a>=e       
-        jr      tidg_false              ; false
-tidg_possible:
-        cp      d                       ; a=a-d
-        jr      c,tidg_true		        ; a<d
-        jr      z,tidg_true             ; a=d
-        jr      tidg_false
-tidg_true:
-        ;; set zero flag
-        xor     a                       ; a=0, set zero flag
-        ld      a,c                     ; restore A
-        ret
-tidg_false:
-        ;; reset zero flag
-        xor     a
-        cp      #0xff
-        ld      a,c
-        ret
-~~~
-
-Now we can derive our tests by simply populating DE and A and calling this function. 
-
-~~~asm
-test_is_digit:
-	    ld      de,#0x3930	            ; d='9', e='0'
-        jr      test_inside_interval    ; ret optimization...
-~~~
-
-The `ret` optmization means that we jump on the test and when it returns it will go
-directly to the calee so we save one call.
-
-In addition to that, returning values in flags is a *superoptimization* enabler. We can now chain calls like this.
-
-~~~asm
-test_is_alpha:
-        call    test_is_upper
-        ret     z
-        jr      test_is_lower
-
-test_is_upper:
-        ld      de,#0x5a41              ; d='Z'. e='A'
-        jr      test_inside_interval
-
-test_is_lower:
-        ld      de,#0x7a61              ; d='z', e='a'
-        jr      test_inside_interval    ; last tests' result is the end result
-
-test_is_alphanumeric:
-        call    test_is_digit
-        ret     z
-        jr      test_is_alpha
-~~~
-
-Functionally these tests are equal to a `CP` call - they take same input and return same output. Therefore they can nicely be mixed in a chain with this instruction. 
-
-### Automata Engine
-
-The automata engine will accept `HL`, pointing to the path, `DE` pointing to the FCB structure, and `BC` pointing to the area byte to fill. It will fill the first three fields of the FCB strucure: `drive`, `filename` and `filetype` and return success or error. Here's the C call to the parse function.
+Here's the C prototype of the parse function.
 
 ~~~cpp
 extern uint8_t fparse(char *path, fcb_t *fcb, uint8_t *area);
 ~~~
 
-Let's write assembler code for this function.
+This is our goal! The CP/M `fcb_t` type is defined as
+
+~~~cpp
+typedef struct fcb_s {
+	uint8_t drive;          /* 0 -> Searches in default disk drive */
+	char filename[8];       /* file name ('?' means any char) */
+	char filetype[3];       /* file type */
+	uint8_t ex;             /* extent */
+   	uint16_t resv;          /* reserved for CP/M */
+	uint8_t rc;             /* records used in extent */
+	uint8_t alb[16];        /* allocation blocks used */
+	uint8_t seqreq;         /* sequential records to read/write */
+	uint16_t rrec;          /* rand record to read/write */ 
+	uint8_t rrecob;         /* rand record overflow byte (MS) */
+} fcb_t; /* file control block */
+~~~
+
+We will only populate the first three members of this structure: `drive`, `filename`, and `filetype`. The `filename` and `filetype` members must be padded with spaces if shorter than the allocated space.
+
+The compiler will place function arguments on the stack from last to first. The last value on the stack will be the return address. Here's the code that pops the function arguments up and initializes the `fcb_t` structure.
 
 ~~~asm
-        .area   _CODE
 _fparse::
         ;; fetch args from stack
         pop     af                      ; ignore the return address...
         pop     hl                      ; pointer to path to hl
-        pop     de                      ; pointer to fdb to de
+        exx
+        ;; pad filename and extension (of FCB) with spaces
+        pop     de                      ; pointer to fcb to de
+        push    de                      ; return it
+        xor     a                       ; a=0
+        ld      (de),a                  ; default drive
+        inc     de                      ; skip over default 
+        ld      b,#11                   ; 8+3 filename
+        ld      a,#' '                  ; pad with spaces
+fpa_init_fcb:
+        ld      (de),a
+        inc     de
+        djnz    fpa_init_fcb
+        pop     de                      ; restore de
         pop     bc                      ; pointer to area to bc
+        exx
         ;; restore stack and make iy point to it
         ld      iy,#-8
         add     iy,sp
         ld      sp,iy
+~~~
+
+There are eight bytes of local variables on the stack, and after we move them to registers, we don't need them anymore. So we can reuse this space for our *local variables*.
+
+~~~asm
         ;; we will use space from 2(iy) to 7(iy) as
         ;; local variables ... overwriting arguments
-        ;; 2(iy) ... current state
-        ;; 3(iy) ... error code
-        ld      2(iy),#0                ; initial state to 2(iy)!
-        ld      3(iy),#0                ; status code is 1 (UNEXPECTED EOS)
+        ld      2(iy),#S_START          ; initial state to 2(iy)!
+        ld      3(iy),#R_UNEXPECT       ; status is unexpected
+        ld      4(iy),#DEFAULT_AREA     ; default area
+        ld      5(iy),#NO_SYM           ; stacked symbol
+        ld      6(iy),#0                ; fname len
+        ld      7(iy),#0                ; ext len
+~~~
+
+Now let's write the top routine.
+
+~~~asm
 fpa_nextsym:
         ;; get next symbol
         ld      a,(hl)
-        cp      #0                      ; end of string?
-        jr      z,fpa_done
         push    hl                      ; store hl!
         ;; find transition
-        call    fpa_findtran
+        call    fpa_find_transition
         ;; if not found then unexpected error
         jr      nz,fpa_done
-        ;; else transition function id is in l
+        ;; else transition function id is in register l
         call    fpa_execfn
         jr      nz,fpa_done             ; if not zero then status!
+        ;; is it final state?
+        ld      a,2(iy)
+        and     #0x0f
+        cp      #S_END
+        jr      z,fpa_done
         ;; loop
         pop     hl                      ; restore hl
         inc     hl                      ; next symbol
         jr      fpa_nextsym             ; and loop
-        ;; execute function in l
-fpa_execfn:
-        ld      h,a                     ; store a
-        ld      a,l
-        cp      #FPAFN_NONE
-        jr      z,fpafn_nofun           ; there is no function!
-        cp      #FPAFN_APPEND_AREA
-        call    z,fpafn_append_area
-        cp      #FPAFN_APPEND_FNAME
-        call    z,fpafn_append_fname
-        ;; if we are here, the function is invalid
-        ld      3(iy),#INVALID_FN       ; invalid function error
+~~~
+
+It's dead simple. We take a symbol (a char) from the filename. Based on the symbol and the current state, the `fpa_find_transition` function finds the transition. It reports an error if not found. And calls the function if found. Before moving to the next symbol, we check if we have reached the final state.
+
+We find the transition by iterating through the entire finite-state machine.
+
+~~~asm
+        ;; find transition
+fpa_find_transition:
+        ld      hl,#fpa_automata        ; address of mealy automata
+        ;; b=total transitions
+        ld      b,#((efpa_automata-fpa_automata)/2)
+        ld      c,a                     ; store a
+fpaft_loop:
+        ld      a,(hl)                  ; get first byte
+        and     #0b00001111             ; get state
+        cp      2(iy)                   ; is it current state?
+        call    z,fpaft_test            ; call test
+        jr      nz,fpaft_next           ; test failed, next trans.
+        inc     hl                      ; get next byte
+        ld      a,(hl)                  ; get second byte to a
+        and     #0b00001111             ; grab next state
+        ld      2(iy),a                 ; store to current state
+        ld      a,(hl)                  ; get second byte to a
+        and     #0b11110000             ; extract function
+        ld      l,a                     ; get function to l
+        ;; and return success
         xor     a
-        cp      #1                      ; reset z flag
+        ld      a,c
         ret
-fpafn_nofun:
-        xor     a                       ; everything's allright!
+fpaft_next:
+        inc     hl                      ; next state
+        inc     hl
+        djnz    fpaft_loop              ; and loop it
+        ;; if we are here, we did not find
+        ;; the transition. clear zero flag!
+fpaft_unexpect_sym:
+        ld      3(iy), #R_UNEXPECT
+fpaft_set_z:
+        xor     a
+        cp      #0xff                   ; rest z flag
+        ld      a,c                     ; resotre a
         ret
-        ;; report status and quit!
-fpa_done:
-        pop     hl                      ; restore hl
-        ld      h,l                     ; char position to h
-        ld      l, 3(iy)                ; error/success code to l
-        ret
+~~~
 
+The `fpaft_test` function calls the tests defined in the transition and sets the `Z` flag. It uses the design pattern, described in [Z80 Patterns: The Case Statement](https://github.com/tstih/mavrica/blob/main/docs/Z80-CASE.md).
 
-        ;; function: append area
-fpafn_append_area:
-        ld      a,h                     ; get char to a
+Finally, the logic to populate the `fcb_t` and return arguments correctly is encapsulated in FSM functions. Following is an example of the SET DRIVE function.
+
+~~~asm
+        ;; set drive
+fpafn_set_drv:
+        ld      a,5(iy)                 ; get stacked symbol
+        ld      5(iy),#0                ; empty stack
+        exx
+        ld      (de),a                  ; first byte of FCB 
+        exx
+        xor     a
         ret
-
-fpafn_append_fname:
-        ld      a,h
-        ret
-
-fpafn_pad_fname:
-        ret
-
-fpafn_append_ext:
-        ld      a,h
-        ret
-
-fpafn_pad_ext:
-        ret
-
-fpafn_set_drive:
-        ld      a,h
-        ret
-
-fpath_stack_symbol:
-        ld      a,h
-        ret
-
-        .area   _CODE
-fpa_fsm:
-        .db     0,0
-        .db     0,0
-        .db     0,0
-efpa_fsm_end:
 ~~~
