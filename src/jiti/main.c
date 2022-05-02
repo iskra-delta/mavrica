@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
+#include <string.h>
 
 #include <io.h>
 
@@ -22,13 +23,16 @@ uint8_t area;
 int main(int argc, char *argv[]) {
     argc; argv;
 
-    int result = fparse("TEST.COM", &fcb, &area);
+    int result = fparse("1C:T.A", &fcb, &area);
 
-    printf("Result is %d, area is %d, drive is %c, fname is %s\n", 
-        result, 
-        area, 
-        fcb.drive,
-        &(fcb.filetype));
+    char fname[9], ext[4];
+    memcpy(fname,&(fcb.filename[0]),8);
+    fname[8]=0;
+    memcpy(ext,&(fcb.filetype[0]),3);
+    ext[3]=0;
+
+    printf("FILE : %s\n EXT : %s\n RES : %04x\nAREA : %d\n DRV : %d\n", 
+        fname, ext, result, area, fcb.drive);
 
     return 0;
 }

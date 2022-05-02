@@ -18,4 +18,7 @@ extern int isalnum(int c);
 extern int islower(int c);
 extern int isupper(int c);
 
+extern int toupper(int c);
+extern int tolower(int c);
+
 #endif /* __CTYPE_H__ */

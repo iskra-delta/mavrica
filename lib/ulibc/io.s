@@ -44,7 +44,7 @@
         .equ    R_INVALID_AREA, 3       ; area not in 0-15 range
         .equ    R_SSTACK_OF,    4       ; symbol stack overflow
         .equ    R_FNAME_OF,     5       ; filename overflow
-        .equ    R_EXT_OF,       6
+        .equ    R_EXT_OF,       6       ; extension overflow
 
         ;; defaults
         .equ    DEFAULT_AREA,   0xff
@@ -58,7 +58,7 @@ _fparse::
         pop     hl                      ; pointer to path to hl
         exx
         ;; pad filename and extension (of FCB) with spaces
-        pop     de                      ; pointer to fdb to de
+        pop     de                      ; pointer to fcb to de
         push    de                      ; return it
         xor     a                       ; a=0
         ld      (de),a                  ; default drive
@@ -87,6 +87,7 @@ fpa_init_fcb:
         ld      6(iy),#0                ; fname len
         ld      7(iy),#0                ; ext len
         ;; main loop
+test::
 fpa_nextsym:
         ;; get next symbol
         ld      a,(hl)
@@ -98,6 +99,11 @@ fpa_nextsym:
         ;; else transition function id is in register l
         call    fpa_execfn
         jr      nz,fpa_done             ; if not zero then status!
+        ;; is it final state?
+        ld      a,2(iy)
+        and     #0x0f
+        cp      #S_END
+        jr      z,fpa_done
         ;; loop
         pop     hl                      ; restore hl
         inc     hl                      ; next symbol
@@ -138,7 +144,29 @@ fpaft_set_z:
         cp      #0xff                   ; rest z flag
         ld      a,c                     ; resotre a
         ret
-
+        ;; we're done parsing
+fpa_done:
+        pop     hl                      ; clear stack
+        ;; set result
+        ld      h,#0                    
+        ld      l,3(iy)
+        ;; set area
+        ld      a,4(iy)                 ; get area
+        exx
+        ld      (bc),a                  ; set area
+        ;; convert drive to uppercase
+        ld      a,(de)                  ; get drive
+        or      a                       ; test for no drive
+        jr      z,fpa_no_drive
+        push    de                      ; store de
+        call    char_to_upper           ; convert to upper
+        sub     #'A'-1                  ; make 1 based index
+        pop     de                      ; restore de
+        ld      (de),a                  ; set drive
+fpa_no_drive:
+        exx
+        ;; and return
+        ret   
 
         ;; ----- tests --------------------------------------------------------
         ;; extract test from a and do it!
@@ -188,11 +216,9 @@ ftaft_t07:
         ;; it is else test, it always succeeds
         xor     a                       ; set z flag
         ret
-        ;; we're done parsing
-fpa_done:
-        pop     hl                      ; restore hl
-        ;; TODO: check for success
-        ret                             ; and return
+        
+        ;; ----- functions ----------------------------------------------------
+        
         ;; execute function (fn code is in register l)
 fpa_execfn:
         ld      h,a                     ; store a
@@ -214,14 +240,12 @@ fpa_execfn:
         xor     a
         cp      #1                      ; reset z flag
         ret
-        ;; automata functions
+
+        ;; none
 fpafn_nofun:
         xor     a                       ; success!
         ret
 
-        
-        ;; ----- functions ----------------------------------------------------
-        
         ;; append the area
 fpafn_append_area:
         ld      a,4(iy)                 ; get current area
@@ -294,7 +318,7 @@ fnaf_sym2:
 fnaf_append_char:
         ld      d,a                     ; store a
         ld      a,6(iy)                 ; get len
-        cp      #7                       ; overflow
+        cp      #8                      ; overflow
         jr      z,fnaf_overflow
         exx
         add     #1                      ; skip over drive in FCB

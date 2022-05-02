@@ -14,6 +14,8 @@
         .globl  _isalnum
         .globl  _islower
         .globl  _isupper
+        .globl  _tolower
+        .globl  _toupper
 
         ;; internal functions
         .globl  test_is_alpha
@@ -22,6 +24,8 @@
         .globl  test_is_lower
         .globl  test_is_upper
         .globl  test_inside_interval
+        .globl  char_to_upper
+        .globl  char_to_lower
 
         .area _CODE
 
@@ -33,41 +37,44 @@
 _isdigit::
         call    ctype_args
         call    test_is_digit
-        ret     nz                      ; hl=0 
-        inc     l                       ; hl=1
-        ret
+        jr      ctype_is_end
 
         ;; ----- int isalpha(int c) -------------------------------------------
 _isalpha::
         call    ctype_args
         call    test_is_alpha
-        ret     nz                      ; hl=0 
-        inc     l                       ; hl=1
-        ret
+        jr      ctype_is_end
 
         ;; ----- int isalnum(int c) -------------------------------------------
 _isalnum::
         call    ctype_args
         call    test_is_alphanumeric
-        ret     nz                      ; hl=0 
-        inc     l                       ; hl=1
-        ret
+        jr      ctype_is_end
 
         ;; ----- int islower(int c) -------------------------------------------
 _islower::
         call    ctype_args
         call    test_is_lower
-        ret     nz                      ; hl=0 
-        inc     l                       ; hl=1
-        ret
+        jr      ctype_is_end
 
         ;; ----- int isupper(int c) -------------------------------------------
 _isupper::
         call    ctype_args
         call    test_is_upper
-        ret     nz                      ; hl=0 
-        inc     l                       ; hl=1
+        jr      ctype_is_end
+
+        ;; ----- int toupper(int c) -------------------------------------------
+_toupper::
+        call    ctype_args
+        call    char_to_upper
         ret
+
+        ;; ----- int tolower(int c) -------------------------------------------
+_tolower::
+        call    ctype_args
+        call    char_to_lower
+        ret
+
 
         ;; ----- utility functions --------------------------------------------
         ;; get low byte of int argument to a
@@ -85,6 +92,36 @@ ctype_args:
         ld      a,(iy)                  ; get lo byte arg to a
         ld      hl,#0                   ; init hl
         ret
+
+        ;; adjust return code in hl based on the z flag
+        ;; input(s):
+        ;;  hl = 0 
+        ;;  z flag
+        ;; output(s):
+        ;;  if z then hl = 1 else hl = 0
+ctype_is_end:
+        ret     nz                      ; hl=0
+        inc     l                       ; hl=1
+        ret
+
+
+        ;; ----- char functions  ----------------------------------------------
+char_to_upper:
+        call    test_is_lower           ; only convert if lower
+        jr      nz,ctu_done
+        sub     #32
+ctu_done:
+        ld      l,a
+        ret
+
+char_to_lower:
+        call    test_is_upper           ; only convert if upper
+        jr      nz,ctl_done
+        add     #32
+ctl_done:
+        ld      l,a
+        ret
+
 
         ;; ----- test functions -----------------------------------------------
 test_is_alpha:

@@ -35,10 +35,12 @@ extern unsigned char *fload(char *path, unsigned char* out);
    structure */
 #define FP_DEFAULT              0xff
 #define FP_STS_SUCCESS          0x00
-#define FP_STS_INVALID_AREA     0x01
-#define FP_STS_INVALID_DRIVE    0x02
-#define FP_STS_UNEXPECTED_END   0x03
-#define FP_STS_INVALID_SYMBOL   0x04
+#define FP_STS_UNEXPECTED_SYM   0x01
+#define FP_STS_INVALID_FUNC     0x02
+#define FP_STS_INVALID_AREA     0x03
+#define FP_STS_SYM_STACK_FULL   0x04
+#define FP_STS_FNAME_OVERFLOW   0x05
+#define FP_STS_EXT_OVERFLOW     0x06
 extern int fparse(char *path, fcb_t *fcb, uint8_t *area);
 
 #endif /* __IO_H__ */
