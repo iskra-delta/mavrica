@@ -87,7 +87,6 @@ fpa_init_fcb:
         ld      6(iy),#0                ; fname len
         ld      7(iy),#0                ; ext len
         ;; main loop
-test::
 fpa_nextsym:
         ;; get next symbol
         ld      a,(hl)
@@ -295,7 +294,6 @@ fpafn_set_drv:
         exx
         ld      (de),a                  ; first byte of FCB 
         exx
-        ld      7(iy),a                 ; store drive letter...
         xor     a
         ret
 
