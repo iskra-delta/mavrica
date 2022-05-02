@@ -1,8 +1,10 @@
-# CP/M Extended Path Parser
+# Z80 Automata Implementation
 
-Parsing an extended CP/M path seems a simple task. But looks can be deceiving. 
+Hi there. You're probably interested in Z80, final state machines, or CP/M if you are here. Then, you've come to the right place. In this example of a non-trivial Z80 finite state machine, we are implementing an extended CP/M path parser.
 
- > What is an extended CP/M path? It is a CP/M filename with extension that includes the CP/M area and drive. For example, 2A:TEST.DAT.
+ > Just what exactly is an extended CP/M path? It is a CP/M filename with an extension that includes the CP/M area and drive. For example, 2A:TEST.DAT.
+
+Using the FSM for this task may not be optimal, but our objective is to demonstrate the technique. After that, you can use it to implement more complex tasks, such as the standard C printf function or a programming language tokenizer.
 
 # Syntax and Semantic Analysis
 
@@ -15,23 +17,19 @@ A valid path also respects two additional semantic rules:
  * Filename and extension are 7 bit ascii strings and cannot contain any of the following: < > . , ; : = ? * [ ] % | ( ) / \. 
  * Max length for the filename is 8 and for extension 3. 
 
-# Implementing the Parser
-
-In the world of retro programming we can't just grab the C compiler and start coding. We are on a limited hardware! Each byte is a precious resource. Hence we need to optimize the size of our parser.
-
 ## Introducing the Automata
 
-Our approach will be to convert the parse task into a Mealy machine. Our input will be character and current state, and our output a call to function to do something with it.
+Our approach is to convert the parsing task into a [Mealy machine](https://en.wikipedia.org/wiki/Mealy_machine). Our input will be character and current state, and our output a call to function to do something with it.
 
-Here's how: this is the mealy machine for parsing the area at beginning of the path.
+This is the partial mealy machine for parsing the area at the beginning of the path.
 
 ![Parse area](../docs/img/parse-path-area.png)
 
-We start in the `START` state and read the first symbol. If it is a digit we call function `APPEND AREA` and move to state `AREA`. If it is not digit then there is no area and we move to final state `END`. We persist in the `AREA` state as long as there are digits available. If we encounter anything else, we're done. 
+We start in the `START` state and read the first symbol. Then, we call the function `APPEND AREA` and move to the `AREA` state if it is a digit. If it is not a digit, there is no area, and we move to the `END` state. We persist in the `AREA` state as long as digits are available. We move to the 'END' state if we encounter anything else.
 
- > In case of any unexpected symbol we trigger an error.
+ > In case of any unexpected symbol, we trigger an error.
 
-This will take any number from the start of string, but it will not perform the semantic check. A excellent place to do that is the `APPEND AREA` function. 
+This machine will take any number from the start of a string, but it will not perform the semantic check. An excellent place to do that is the `APPEND AREA` function. 
 
 ### Encoding the Automata
 
@@ -46,10 +44,23 @@ We could create an adjacment matrix for state transitions, but this would be mem
 Our automata can then be written as
 
 ~~~
-START, 0-9, APPEND AREA, AREA
-START, , , END
-AREA, 0-9, APPEND AREA, AREA
-AREA, , , END
+fpa_automata:
+        .db     S_START + T_DIGIT,      S_AREA + F_APPEND_AREA
+        .db     S_START + T_ALPHA,      S_DRIVE + F_STACK_SYM
+        .db     S_START + T_ASCII7,     S_FNAME + F_APPEND_FNAME
+        .db     S_AREA + T_DIGIT,       S_AREA + F_APPEND_AREA
+        .db     S_AREA + T_COLON,       S_FNAME0 + F_NONE
+        .db     S_AREA + T_ASCII7,      S_DRIVE + F_STACK_SYM
+        .db     S_DRIVE + T_COLON,      S_FNAME0 + F_SET_DRV
+        .db     S_DRIVE + T_ASCII7,     S_FNAME + F_APPEND_FNAME
+        .db     S_FNAME0 + T_ASCII7,    S_FNAME + F_APPEND_FNAME
+        .db     S_FNAME + T_ASCII7,     S_FNAME + F_APPEND_FNAME
+        .db     S_FNAME + T_ZERO,       S_END + F_NONE
+        .db     S_FNAME + T_DOT,        S_EXT0 + F_NONE
+        .db     S_EXT0 + T_ASCII7,      S_EXT + F_APPEND_EXT
+        .db     S_EXT + T_ASCII7,       S_EXT + F_APPEND_EXT
+        .db     S_EXT + T_ZERO,         S_END + F_NONE
+efpa_automata:
 ~~~
 
 An empty test always succeeds, and an empty function means no function. Depending on number of states, tests, and functions we can generate quite economic table for our automata. In the above case we only need three states which can be encoded in 2 bits, we only need two function calls which require 1 bit. And one test which requires 1 bit. Hence our row for describing a transiaiton is 2 + 1 + 1 + 2 = 6 bits. The entire automata takes 3 bytes.
