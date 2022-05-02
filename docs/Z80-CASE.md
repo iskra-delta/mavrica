@@ -3,7 +3,7 @@
 A good design can save you a lot of work. Take, for example, this *case* statement. 
 
 ~~~asm
-        ld      a,(hl)                  ; get a 
+        ld      a,(hl)                  
         cp      #' '
         jr      z,is_space
         cp      #'_'
@@ -15,7 +15,7 @@ A good design can save you a lot of work. Take, for example, this *case* stateme
 
 It is well structured and easy to understand. This is possible because compare instruction returns the result in the `Z`  flag and preserves the value of register `A`. But what if you want to check if a value falls between two bounds? Writing code using the `CP` instruction would break the natural flow and introduce jumps and complexity.
 
-Let's encapsulate the comparison operation into a function that behaves like the `CP` instruction and sets or resets the Z flag to keep the flow intact.
+So here's an idea. Let's encapsulate the comparison operation into a function that behaves like the `CP` instruction, preserves the `A` register and sets or resets the Z flag.
 
 Our test function below accepts the symbol in the `A` register and tests if within the bounds of registers `D` and `E` so that **D >= A >= E**. 
 
@@ -54,11 +54,11 @@ tidg_false:
         ret
 ~~~
 
-We can derive our tests by simply populating DE and A and calling this function. 
+We can derive further tests by simply populating DE and A and calling this function. 
 
 ~~~asm
 test_is_digit:
-	    ld      de,#0x3930	            ; d='9', e='0'
+        ld      de,#0x3930	            ; d='9', e='0'
         jr      test_inside_interval    ; ret optimization...
 ~~~
 
