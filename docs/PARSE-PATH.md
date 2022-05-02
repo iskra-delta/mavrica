@@ -274,4 +274,4 @@ fpafn_set_drv:
         ret
 ~~~
 
-[Click here to see the complete source code](https://github.com/tstih/mavrica/blob/main/lib/ulibc/io.s) of the finite state machine, described in this article.
+[Click here to see the complete source code](https://github.com/tstih/mavrica/blob/main/lib/ulibc/io.s) of the parser finite state machine, described in this article.
