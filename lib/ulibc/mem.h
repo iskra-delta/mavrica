@@ -36,4 +36,10 @@ typedef struct block_s {
 /* Must be defined in crt0 */
 extern void _heap;
 
+
+/* functions */
+extern void* calloc (unsigned int num, unsigned int size);
+extern void free(void *p);
+extern void *malloc(unsigned int size);
+
 #endif /* __LIST_H__ */

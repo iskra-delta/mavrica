@@ -2,8 +2,8 @@ digraph instruction_size {
 	
     fontname="Helvetica,Arial,sans-serif"
 	
-    node [fontname="Helvetica,Arial,sans-serif", fontsize=8, width=0.4, fixedsize=true]
-	edge [fontname="Helvetica,Arial,sans-serif", fontsize=8, len=2.2]
+    node [fontname="Helvetica,Arial,sans-serif", fontsize=8, width=0.5, fixedsize=true]
+	edge [fontname="Helvetica,Arial,sans-serif", fontsize=6, len=1.5]
 	
     rankdir=TB
 

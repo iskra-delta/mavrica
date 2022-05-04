@@ -1,4 +1,4 @@
-		;; io.s
+		;; fparse.s
         ;; 
         ;; minimal io ops
 		;;
@@ -6,7 +6,7 @@
         ;; copyright (c) 2022 tomaz stih
         ;;
 		;; 14.04.2022    tstih
-        .module io
+        .module fparse
 
         .globl  _fparse
 

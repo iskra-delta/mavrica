@@ -1,7 +1,7 @@
 /*
  * bdos.h
  *
- * BDOS calls for CP/M.
+ * BDOS calls and definitions.
  *
  * MIT License (see: LICENSE)
  * copyright (c) 2021 tomaz stih
@@ -71,6 +71,21 @@ typedef struct bdos_ret_s {
 #define HWERR_PASSWORD  7               /* Password error */
 #define HWERR_FEXISTS   8               /* File already exists */
 #define HWERR_INV_FNME  9               /* Name contains ? */
+
+
+#define DMA_SIZE        128
+typedef struct fcb_s {
+	unsigned char drive;                /* 0 -> Searches in default disk drive */
+	char filename[8];                   /* file name ('?' means any char) */
+	char filetype[3];                   /* file type */
+	unsigned char ex;                   /* extent */
+   	unsigned int resv;                  /* reserved for CP/M */
+	unsigned char rc;                   /* records used in extent */
+	unsigned char alb[16];              /* allocation blocks used */
+	unsigned char seqreq;               /* sequential records to read/write */
+	unsigned int rrec;                  /* rand record to read/write */ 
+	unsigned char rrecob;               /* rand record overflow byte (MS) */
+} fcb_t; /* file control block */
 
 
 /* Call bdos, return register A. */

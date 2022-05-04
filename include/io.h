@@ -29,7 +29,7 @@ typedef struct fcb_s {
 } fcb_t; /* file control block */
 
 /* load entire file into memory */
-extern unsigned char *fload(char *path, unsigned char* out);
+extern void *fload(char *path, void* out, unsigned int *flen);
 
 /* parse path such as 1A:TEST.DAT and returns path_t
    structure */

@@ -17,22 +17,18 @@
 
 #include <io.h>
 
-fcb_t fcb;
-uint8_t area;
-
 int main(int argc, char *argv[]) {
     argc; argv;
 
-    int result = fparse("1C:T.A", &fcb, &area);
+    unsigned int flen;
+    void *out;
+    out=fload(argv[1],NULL,&flen);
 
-    char fname[9], ext[4];
-    memcpy(fname,&(fcb.filename[0]),8);
-    fname[8]=0;
-    memcpy(ext,&(fcb.filetype[0]),3);
-    ext[3]=0;
-
-    printf("FILE : %s\n EXT : %s\n RES : %04x\nAREA : %d\n DRV : %d\n", 
-        fname, ext, result, area, fcb.drive);
+    printf("FILE: %s, LEN: %d, RESULT: %d\n", 
+        argv[1],
+        flen,
+        out
+        );
 
     return 0;
 }
