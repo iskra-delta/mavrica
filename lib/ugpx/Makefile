@@ -13,7 +13,7 @@ OBJS	=	$(addprefix $(BUILD_DIR)/, \
 					$(patsubst %.s,%.rel,$(S_SRCS)) \
 				) \
 			)
-TARGET = ugdp
+TARGET = ugpx
 
 # Add our include folder to fags
 CFLAGS	+= 	-I $(ROOT)/lib/libtiles

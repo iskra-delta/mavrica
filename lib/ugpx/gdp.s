@@ -28,20 +28,20 @@
         ;; wait for the GDP to finish previous operation
         ;; don't touch interrupts!
         ;; affects: a
-__gdp_wait_ready:
+gdp_wait_ready:
         ;; make sure GDP is free
         in      a,(EF9367_STS_NI)       ; read the status register
         and     #EF9367_STS_NI_READY    ; get ready flag, it's the same bit
-        jr      z,__gdp_wait_ready
+        jr      z,gdp_wait_ready
         ret
 
 
         ;; execute command in a
         ;; input:	a=command
         ;; affects: -
-__gdp_exec_cmd:
+gdp_exec_cmd::
         push    af
-        call    __gdp_wait_ready        ; wait gdp
+        call    gdp_wait_ready        ; wait gdp
         pop     af
         out     (#EF9367_CMD), a        ; exec. command
         ret
@@ -50,8 +50,8 @@ __gdp_exec_cmd:
         ;; set deltas to dx, dy
         ;; inputs:  b=dy, c=dx
         ;; affect:  a, bc
-__gdp_set_dxdy::
-        call    __gdp_wait_ready
+gdp_set_dxdy::
+        call    gdp_wait_ready
         ld      a,b
         out     (#EF9367_DY),a
         ld      a,c
@@ -63,7 +63,7 @@ __gdp_set_dxdy::
         ;; notes:   y is transformed (ef9367 has negative axis!
         ;; inputs:  hl=x, de=y
         ;; affect:  af
-__gdp_set_xy::
+gdp_set_xy::
         ;; store hl and de regs
         push    de
         push    hl
@@ -75,7 +75,7 @@ __gdp_set_xy::
         pop     de                      ; de=x
         ex      de,hl                   ; switch
         ;; wait for gdp
-        call    __gdp_wait_ready
+        call    gdp_wait_ready
         ld      a,l
         out     (EF9367_XPOS_LO),a
         ld      a,h
@@ -110,11 +110,11 @@ _gdp_init::
 
 
         ;; ------------------
-		;; void _ef9367_cls()
+		;; void _gdp_cls()
         ;; ------------------
 		;; clear graphic screen
         ;; affect:  af
 _gdp_cls::
 		ld      a,#EF9367_CMD_CLS
-		call    __gdp_exec_cmd
+		call    gdp_exec_cmd
         ret

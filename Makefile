@@ -31,7 +31,7 @@ export LD			=	sdcc
 export LDFLAGS		=	-mz80 -Wl -y --code-loc 0x100 \
 						--no-std-crt0 --nostdlib --nostdinc \
 						$(addprefix -L,$(BUILD_DIR)) \
-						-lusdcc -lulibc -lugdp -p
+						-lusdcc -lulibc -lugpx -p
 export OBJCOPY		=	sdobjcopy
 export CRT0			=	crt0
 
