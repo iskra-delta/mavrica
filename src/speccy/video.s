@@ -54,7 +54,7 @@ addr2xy:
         or      h
         ld      h,a
         ret     
-        
+
 
         ;; ----- void vid_write(unsigned int addr, unsigned char value) -------
 _vid_write:
@@ -242,7 +242,6 @@ vblt_draw_byte:
         jr      nz,vblt_draw_byte
         jr      vblt_draw_done
 vblt_draw_white_line:
-        ;; draw line
         xor     a                       ; select pen
         call    gdp_exec_cmd
         ;; and draw line
@@ -252,8 +251,7 @@ vblt_draw_black_line:
         call    gdp_exec_cmd
         ;; and draw line
 vblt_draw_line:
-        ;; if line is > 256 we need to divide it to two lines
-        ld      a,c                     ; dx to a
+        push    bc                      ; store counter!
         ;; multiply c (dx) by 16
         ld      b,#0
         sla     c
@@ -264,14 +262,10 @@ vblt_draw_line:
         rl      b
         sla     c
         rl      b
-        ;; if > 256
-        ;; set b (dy) to 0
-        ld      b,#0
-        call    gdp_set_dxdy
-        ;; now draw line
-        ld      a,0b00010000
-        call    gdp_exec_cmd
+        ;; draw horz. line bc=dx
+        call    gdp_hline
         ;; no need to jump to done here
+        pop     bc                      ; restore counter!
 vblt_draw_done:
         djnz    vblt_draw_loop
         ;; add 32 to logical DE 
