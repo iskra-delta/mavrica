@@ -1,6 +1,10 @@
+![status.badge] [![language.badge]][language.url] [![standard.badge]][standard.url] [![license.badge]][license.url]
+
 # mavrica
 
 The JIT ZX Spectrum emulator for the Iskra Delta Partner.
+
+![Mavrica](docs/img/mavrica.jpg)
 
 # How does it work?
 
@@ -36,7 +40,16 @@ However if the basic block is not found, it will repeat the compilation process.
 
  ## Decoding Z80 instructions
 
- In phase I. we are interested in two aspects of every instruction. First is the instruction length, and second is identifying jumps. To minimize the effort of decoding the instruction we are going to use [tricks collected by Christian Dinu from various sources](http://www.z80.info/decoding.htm). Following is a final state machine that does the job.
+ In phase I. we are interested in two aspects of every instruction. First is the instruction length, and second is identifying jumps. To minimize the effort of decoding the instruction we are going to use [tricks collected by Christian Dinu from various sources](http://www.z80.info/decoding.htm).
 
 
- On this figure, squares are identified jump operations and transitions may have /+n postfix, which is the number of bytes to proceed. Hence if the first byte of our program is `0xE9` then we move one byte ahead and identify the instruction as `JP (HL)`. If the first byte is `0xCB` then we move ahead two bytes (as all instructions starting with `0xCB` are two bytes long), and we don't recognize a jump (because there are no jump instructions starting with `0xCB`). The pattern i.e. `01***011` is pseudo regular expression for a bitmask of the observed byte where the value of asterisk can be 0 or 1.
+[language.url]:   https://en.wikipedia.org/wiki/ANSI_C
+[language.badge]: https://img.shields.io/badge/language-C-blue.svg
+
+[standard.url]:   https://en.wikipedia.org/wiki/C89/
+[standard.badge]: https://img.shields.io/badge/standard-C89-blue.svg
+
+[license.url]:    https://github.com/tstih/libcpm3-z80/blob/main/LICENSE
+[license.badge]:  https://img.shields.io/badge/license-MIT-blue.svg
+
+[status.badge]:  https://img.shields.io/badge/status-development-red.svg
