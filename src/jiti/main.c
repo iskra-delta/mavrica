@@ -15,11 +15,11 @@
 #include <ctype.h>
 #include <string.h>
 
-#include <speccy/video.h>
-#include <gpx.h>
 #include <io.h>
+#include <gpx.h>
+#include <jiti/jiti.h>
 
-uint8_t *screen;
+uint8_t *bin;
 unsigned int flen;
 
 int main(int argc, char *argv[]) {
@@ -31,8 +31,8 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    screen=fload(argv[1],NULL,&flen);
-    if (screen==NULL) {
+    bin=fload(argv[1],NULL,&flen);
+    if (bin==NULL) {
         puts("Invalid filename.\n");
         return 1;
     }
@@ -46,14 +46,10 @@ int main(int argc, char *argv[]) {
     /* initialize gdb */
     gdp_init(); gdp_cls();
 
-    /* draw ... */
-    vid_blit(screen);
+    /* compile code ... */
+    unsigned int result=compile(bin,0x8000);
+    printf("\n\n%04x\n",result);
     
-    //vid_write(0,screen[0]);
-    //for(int i=1;i</*6144*/32;i++)
-    //test();
-        //vid_write(i,screen[i]);
-
     /* show terminal cursor */
     avdc_show_cursor();
 
