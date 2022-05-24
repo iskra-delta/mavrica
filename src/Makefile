@@ -22,9 +22,9 @@ all: $(BUILD_DIR)/$(TARGET).com
 $(BUILD_DIR)/$(TARGET).com: $(BUILD_DIR)/$(TARGET).ihx
 	$(OBJCOPY) -I ihex -O binary $(basename $@).ihx $(basename $@).com
 
-$(BUILD_DIR)/$(TARGET).ihx: $(BUILD_DIR)/$(CRT0).rel $(OBJS)
+$(BUILD_DIR)/$(TARGET).ihx: $(BIN_DIR)/$(CRT0).rel $(OBJS)
 	$(LD) $(LDFLAGS) -o $(BUILD_DIR)/$(TARGET).ihx \
-		$(BUILD_DIR)/$(CRT0).rel $(OBJS)
+		$(BIN_DIR)/$(CRT0).rel $(OBJS)
 	$(L2FIX) $(BUILD_DIR)/$(TARGET).lk > $(BUILD_DIR)/$(TARGET).link
 	$(L2) $(L2FLAGS) $(BUILD_DIR)/$(TARGET).link
 

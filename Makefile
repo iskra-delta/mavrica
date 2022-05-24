@@ -14,9 +14,8 @@ export BUILD_DIR	=	$(ROOT)/build
 export BIN_DIR		=	$(ROOT)/bin
 export SRC_DIR		=	$(ROOT)/src
 export LIB_DIR		=	$(ROOT)/lib
-export INC_DIR		=	$(ROOT)/include \
-						$(LIB_DIR) \
-						$(SRC_DIR)
+export INC_DIR		=	$(SRC_DIR) \
+						$(LIB_DIR)/idp-udev/include
 export DISK_DIR		=	$(ROOT)/disk
 
 # Globa settings: 8 bit tools.
@@ -30,7 +29,7 @@ export ARFLAGS		=	-rc
 export LD			=	sdcc
 export LDFLAGS		=	-mz80 -Wl -y --code-loc 0x100 \
 						--no-std-crt0 --nostdlib --nostdinc \
-						$(addprefix -L,$(BUILD_DIR)) \
+						$(addprefix -L,$(BIN_DIR)) \
 						-lusdcc -lulibc -lugpx -p
 export OBJCOPY		=	sdobjcopy
 export CRT0			=	crt0
@@ -53,7 +52,7 @@ $(SRC_DIR):
 
 .PHONY: $(LIB_DIR)
 $(LIB_DIR):
-	$(MAKE) -C $@
+	$(MAKE) -C $@ BIN_DIR=$(BIN_DIR) BUILD_DIR=$(BUILD_DIR)/lib
 
 .PHONY: mkdirs
 mkdirs:
@@ -76,6 +75,6 @@ install: all
 	cp $(FLOPPY) ~/Dex/fddb.img
 
 .PHONY: clean
-clean:
+clean: 
 	rm -f -r $(BIN_DIR)
 	rm -f -r $(BUILD_DIR)

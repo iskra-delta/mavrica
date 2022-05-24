@@ -1,5 +1,5 @@
 # Folders
-SUBDIRS = usdcc ulibc ugpx
+SUBDIRS = idp-udev
 
 # Rules.
 .PHONY: all
