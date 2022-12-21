@@ -1,11 +1,11 @@
-		;; jiti.s
+        ;; jiti.s
         ;; 
         ;; Just in time interpreter.
-		;;
+        ;;
         ;; MIT License (see: LICENSE)
         ;; copyright (c) 2022 tomaz stih
         ;;
-		;; 05.05.2022    tstih
+        ;; 05.05.2022    tstih
         .module jiti
 
         .include "jiti.inc"
@@ -20,41 +20,56 @@ _compile:
         ;; iy points to args
         ld      iy,#2
         add     iy,sp
-        ld      e,(iy)                  ; get block to hl
-        ld      d,1(iy)
-        ld      b,#20                   ; TODO:test 20 bytes
-_comp_fetch:
-        ld      a,(de)                  ; first instruction
-        ld      hl,#opcodes             ; opcodes to hl
-        push    de                      ; store de
-        ld      d,#0                    ; opcode to de
-        ld      e,a                     
-        add     hl,de                   ; hl points to correct byte
-        ld      a,(hl)                  ; get opcode
+        ld      l,(iy)                  ; get block addr to hl
+        ld      h,1(iy)
+comp_fetch:
+        ld      a,(hl)                  ; first instruction
+        push    hl                      ; store block address
+        ld      hl,#opcodes             ; table address to hl
+        call    comp_table_fetch        ; fetch result to a
+        push    af                      ; store translation
         cp      #(B4+1)                 ; a<4
-        jr      c,_comp_skip            ; no instructions...
+        jr      c,comp_next            ; can ignore...
         ;; if we are here we have instruction type
-        ld      c,a                     ; store a to c
         and     #0b11111100             ; get instruction type
-
-        
-        ;; TODO exit result
-        ld      h,#0
-        ld      l,a
-        pop     de
-        ret
-
-
-        ld      a,c                     ; restore a
-_comp_skip:
+        ;; now compare against know instruction types
+        ;; and branch to it...return to comp_done
+        cp      #I_ED
+        jr      z,compile_ed
+        cp      #I_CB
+        jr      z,compile_cb
+        cp      #I_DD
+        jr      z,compile_dd
+        cp      #I_FD
+        jr      z,compile_fd
+        ;; if we are here, we'll just insert the RST,
+        ;; and store the location and the original code
+        ;; to the tree...
+comp_next:
+        pop     af                      ; get back
         ;; skip over instruction
         and     #0b00000011             ; only two bytes
         inc     a                       ; +1
+        ld      d,#0                    ; will use e of de
         ld      e,a                     ; de=a
-        pop     hl                      ; hl=stored de
+        pop     hl                      ; hl=stored block addr.
         add     hl,de                   ; add instr.size
-        ex      de,hl                   ; back to de
-        djnz    _comp_fetch             ; TODO:test loop
+        jr      comp_fetch              ; next instruction
+
+        ;; fetch indexed value into a
+        ;; inputs:
+        ;;      hl ... table address
+        ;;      a  ... offset
+        ;; output:
+        ;;      a  ... value
+comp_table_fetch:
+        ld      d,#0                    ; use low byte of de
+        ld      e,a                     ; de=offset
+        add     hl,de                   ; hl points to result
+        ld      a,(hl)                  ; to a
         ret
-laddr:
-        .dw     1
+compile_ed:
+compile_cb:
+compile_dd:
+compile_fd:
+        jr      comp_next

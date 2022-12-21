@@ -16,7 +16,7 @@
 #include <string.h>
 
 #include <io.h>
-#include <gpx.h>
+#include <ugpx.h>
 #include <jiti/jiti.h>
 
 uint8_t *bin;
@@ -26,32 +26,20 @@ int main(int argc, char *argv[]) {
     argv;
 
     if (argc!=2) {
-        avdc_cls();
-        gdp_cls();
+        puts("Invalid arguments.");
         return 1;
     }
 
     bin=fload(argv[1],NULL,&flen);
     if (bin==NULL) {
-        puts("Invalid filename.\n");
+        puts("Invalid filename.");
         return 1;
     }
-
-    /* hide terminal cursor! */
-    avdc_hide_cursor();
-
-    /* clear text screen */
-    avdc_cls();
-
-    /* initialize gdb */
-    gdp_init(); gdp_cls();
 
     /* compile code ... */
     unsigned int result=compile(bin,0x8000);
     printf("\n\n%04x\n",result);
     
-    /* show terminal cursor */
-    avdc_show_cursor();
 
     return 0;
 }

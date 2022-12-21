@@ -1,11 +1,11 @@
-		;; video.s
+        ;; video.s
         ;; 
         ;; video ram functions
-		;;
+        ;;
         ;; MIT License (see: LICENSE)
         ;; copyright (c) 2022 tomaz stih
         ;;
-		;; 05.05.2022    tstih
+        ;; 05.05.2022    tstih
         .module video
 
         .globl  _vid_addr2xy
@@ -252,6 +252,8 @@ vblt_draw_black_line:
         ;; and draw line
 vblt_draw_line:
         push    bc                      ; store counter!
+        ld      bc,#0                   ; dy=0
+        push    bc
         ;; multiply c (dx) by 16
         ld      b,#0
         sla     c
@@ -263,7 +265,8 @@ vblt_draw_line:
         sla     c
         rl      b
         ;; draw horz. line bc=dx
-        call    gdp_hline
+        push    bc                      ; dx on stack!
+        call    _gdrawdelta
         ;; no need to jump to done here
         pop     bc                      ; restore counter!
 vblt_draw_done:
