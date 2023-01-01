@@ -16,8 +16,8 @@
 /* tree root node */
 rb_node_t *rb_root = NULL;
 
-/* create new node */
-rb_node_t *rb_create_node(uint16_t start, uint16_t end)
+/* create new node, used internally by other functions */
+rb_node_t *_rb_create_node(uint16_t start, uint16_t end)
 {
     rb_node_t *node;
     node = (rb_node_t *)malloc(sizeof(rb_node_t));
@@ -36,7 +36,7 @@ int rb_insert_node(uint16_t start, uint16_t end)
 
     if (!rb_root)
     {
-        rb_root = rb_create_node(start, end);
+        rb_root = _rb_create_node(start, end);
         return RB_SUCCESS;
     }
 
@@ -51,7 +51,7 @@ int rb_insert_node(uint16_t start, uint16_t end)
         ptr = ptr->link[index];
         dir[ht++] = index;
     }
-    stack[ht - 1]->link[index] = node = rb_create_node(start, end);
+    stack[ht - 1]->link[index] = node = _rb_create_node(start, end);
     while ((ht >= 3) && (stack[ht - 1]->color == RED))
     {
         if (dir[ht - 2] == 0)

@@ -1,6 +1,6 @@
         ;; jiti.s
         ;; 
-        ;; Just in time interpreter.
+        ;; just in time interpreter.
         ;;
         ;; MIT License (see: LICENSE)
         ;; copyright (c) 2022 tomaz stih
@@ -22,6 +22,7 @@ _compile:
         add     iy,sp
         ld      l,(iy)                  ; get block addr to hl
         ld      h,1(iy)
+        ld      (comp_start_block),hl   ; store start block
 comp_fetch:
         ld      a,(hl)                  ; first instruction
         push    hl                      ; store block address
@@ -45,6 +46,14 @@ comp_fetch:
         ;; if we are here, we'll just insert the RST,
         ;; and store the location and the original code
         ;; to the tree...
+comp_done:
+        ld      hl,(comp_end_block)
+        ld      (hl),#RST30             ; insert RST 30 command
+        push    hl
+        ld      hl,(comp_start_block)
+        push    hl
+        call    rb_insert_node
+        ret                             ; and return
 comp_next:
         pop     af                      ; get back
         ;; skip over instruction
@@ -69,7 +78,14 @@ comp_table_fetch:
         ld      a,(hl)                  ; to a
         ret
 compile_ed:
+        jr      comp_done
 compile_cb:
+        jr      comp_done
 compile_dd:
+        jr      comp_done
 compile_fd:
-        jr      comp_next
+        jr      comp_done
+comp_start_block:
+        .ds     2
+comp_end_block:
+        .ds     2

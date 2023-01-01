@@ -36,10 +36,11 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    /* compile code ... */
-    unsigned int result=compile(bin,0x8000);
-    printf("\n\n%04x\n",result);
-    
+    /* and compile... */
+    compile(bin,0x8000); 
+
+    /* the compile function shall never return, but we
+       can jump here from the emulator using the bookmark! */
 
     return 0;
 }

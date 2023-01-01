@@ -9,6 +9,16 @@
         
         .globl  opcodes
 
+        ;; rst opcodes
+        .equ    RST00,      0xC7
+        .equ    RST08,      0xCF
+        .equ    RST10,      0xD7
+        .equ    RST18,      0xDF
+        .equ    RST20,      0xE7
+        .equ    RST28,      0xEF
+        .equ    RST30,      0xF7
+        .equ    RST38,      0xFF
+
         ;; instruction length, first 2 bits
         .equ    B0,         0b00000000  ; ED,CB,DD,FD = 1 byte
         .equ    B1,         0b00000000  ; 1 byte instruction

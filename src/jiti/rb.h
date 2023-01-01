@@ -30,4 +30,7 @@ typedef struct rb_node_s {
 #define RB_E_DUPLICATE      -1  /* you're trying to insert a duplicate*/
 #define RB_E_NOTREE         -2  /* there is no tree to delete from */
 
+extern int rb_insert_node(uint16_t start, uint16_t end);
+extern int rb_delete_node(uint16_t start);
+
 #endif /* __RB_H__ */
