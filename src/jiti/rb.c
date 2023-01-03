@@ -17,26 +17,27 @@
 rb_node_t *rb_root = NULL;
 
 /* create new node, used internally by other functions */
-rb_node_t *_rb_create_node(uint16_t start, uint16_t end)
+rb_node_t *_rb_create_node(uint16_t start, uint16_t end, uint16_t data)
 {
     rb_node_t *node;
     node = (rb_node_t *)malloc(sizeof(rb_node_t));
     node->start = start;
     node->end = end;
+    node->data = data;
     node->color = RED;
     node->link[0] = node->link[1] = NULL;
     return node;
 }
 
 /* insert node */
-int rb_insert_node(uint16_t start, uint16_t end)
+int rb_insert_node(uint16_t start, uint16_t end, uint16_t data)
 {
     rb_node_t *stack[98], *ptr, *node, *px, *py;
     int dir[98], ht = 0, index = 0;
 
     if (!rb_root)
     {
-        rb_root = _rb_create_node(start, end);
+        rb_root = _rb_create_node(start, end, data);
         return RB_SUCCESS;
     }
 
@@ -51,7 +52,7 @@ int rb_insert_node(uint16_t start, uint16_t end)
         ptr = ptr->link[index];
         dir[ht++] = index;
     }
-    stack[ht - 1]->link[index] = node = _rb_create_node(start, end);
+    stack[ht - 1]->link[index] = node = _rb_create_node(start, end, data);
     while ((ht >= 3) && (stack[ht - 1]->color == RED))
     {
         if (dir[ht - 2] == 0)

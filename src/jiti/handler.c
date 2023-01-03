@@ -10,14 +10,7 @@
  *
  */
 void rhandler() __naked {
-
     __asm
-        call    ctx_store               /* store context */
-    __endasm;
-
-    __asm
-
-
     reti
     __endasm;
 

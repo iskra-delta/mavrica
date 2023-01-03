@@ -54,4 +54,4 @@ ctx_af: .ds     2                       ; af
 ctx_sp: .ds     2                       ; space for stack poi
 ctx_hl: .ds     2                       ; hl
 ctx_call:
-        .dst    2                       ; return to main()
+        .ds    2                        ; return to main()

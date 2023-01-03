@@ -1,11 +1,11 @@
         ;; jiti.inc
         ;; 
         ;; Just in time constants.
-		;;
+	;;
         ;; MIT License (see: LICENSE)
         ;; copyright (c) 2022 tomaz stih
         ;;
-		;; 10.05.2022    tstih
+	;; 10.05.2022    tstih
         
         .globl  opcodes
 
@@ -32,7 +32,7 @@
         .equ    I_CB,       0b00001000  ; CB prefix
         .equ    I_DD,       0b00001100  ; DD prefix
         .equ    I_FD,       0b00010000  ; FD prefix
-        .equ    I_DJNZ,     0b00010100  ; DJNZ instruction
+        .equ    I_CBHL,     0b00010100  ; CB operation on HL
         .equ    I_JRCC,     0b00011000  ; conditional JR
         .equ    I_RETCC,    0b00011100  ; conditional RET
         .equ    I_JPCC,     0b00100000  ; conditional JP
@@ -65,7 +65,7 @@ opcodes:
         .db     B1                      ;0x0D   DEC C
         .db     B2                      ;0x0E   LD C, $
         .db     B1                      ;0x0F   RRCA
-        .db     B2 + I_DJNZ             ;0x10   DJNZ %
+        .db     B2                      ;0x10   !!!!! DJNZ %
         .db     B3                      ;0x11   LD DE, ^
         .db     B1                      ;0x12   LD (DE), A
         .db     B1                      ;0x13   INC DE
@@ -307,14 +307,272 @@ opcodes:
         .db     B1 + I_RST              ;0xFF   RST 38
 
 
-        ;; MANUAL PARSING
-        ;;  1. 0xCB instructions
-        ;;     if opcode starts with 0x?6 or 0x?e -> hl address
-        ;;     instruction len is always 2
+
+
+
         ;;  2. 0xED instructions
         ;;     0x43, 0x53, 0x63, 0x73 -> direct mem. 
         ;;     instruction len is 4
         ;;     0x4b, 0x5b, 0x6b, 0x7b -> direct mem
         ;;     instruction len is 4
         ;;     all other instructions have a length of 2
+ed_opcodes:
+        .db     B2                      ;0x00   
+        .db     B2                      ;0x01   
+        .db     B2                      ;0x02   
+        .db     B2                      ;0x03           
+        .db     B2                      ;0x04 
+        .db     B2                      ;0x05
+        .db     B2                      ;0x06
+        .db     B2                      ;0x07
+        .db     B2                      ;0x08
+        .db     B2                      ;0x09
+        .db     B2                      ;0x0A
+        .db     B2                      ;0x0B
+        .db     B2                      ;0x0C
+        .db     B2                      ;0x0D
+        .db     B2                      ;0x0E
+        .db     B2                      ;0x0F
+        .db     B2                      ;0x10   
+        .db     B2                      ;0x11   
+        .db     B2                      ;0x12   
+        .db     B2                      ;0x13   
+        .db     B2                      ;0x14   
+        .db     B2                      ;0x15   
+        .db     B2                      ;0x16   
+        .db     B2                      ;0x17   
+        .db     B2                      ;0x18   
+        .db     B2                      ;0x19   
+        .db     B2                      ;0x1A   
+        .db     B2                      ;0x1B   
+        .db     B2                      ;0x1C   
+        .db     B2                      ;0x1D   
+        .db     B2                      ;0x1E   
+        .db     B2                      ;0x1F   
+        .db     B2                      ;0x20   
+        .db     B2                      ;0x21   
+        .db     B2                      ;0x22   
+        .db     B2                      ;0x23   
+        .db     B2                      ;0x24   
+        .db     B2                      ;0x25   
+        .db     B2                      ;0x26   
+        .db     B2                      ;0x27   
+        .db     B2                      ;0x28   
+        .db     B2                      ;0x29   
+        .db     B2                      ;0x2A   
+        .db     B2                      ;0x2B   
+        .db     B2                      ;0x2C   
+        .db     B2                      ;0x2D   
+        .db     B2                      ;0x2E   
+        .db     B2                      ;0x2F   
+        .db     B2                      ;0x30   
+        .db     B2                      ;0x31   
+        .db     B2                      ;0x32   
+        .db     B2                      ;0x33   
+        .db     B2                      ;0x34   
+        .db     B2                      ;0x35   
+        .db     B2                      ;0x36   
+        .db     B2                      ;0x37   
+        .db     B2                      ;0x38   
+        .db     B2                      ;0x39   
+        .db     B2                      ;0x3A   
+        .db     B2                      ;0x3B   
+        .db     B2                      ;0x3C   
+        .db     B2                      ;0x3D   
+        .db     B2                      ;0x3E   
+        .db     B2                      ;0x3F   
+        .db     B2                      ;0x40   
+        .db     B2                      ;0x41   
+        .db     B2                      ;0x42   
+        .db     B2                      ;0x43   
+        .db     B2                      ;0x44   
+        .db     B2                      ;0x45   
+        .db     B2                      ;0x46   
+        .db     B2                      ;0x47   
+        .db     B2                      ;0x48   
+        .db     B2                      ;0x49   
+        .db     B2                      ;0x4A   
+        .db     B2                      ;0x4B   
+        .db     B2                      ;0x4C   
+        .db     B2                      ;0x4D   
+        .db     B2                      ;0x4E   
+        .db     B2                      ;0x4F   
+        .db     B2                      ;0x50   
+        .db     B2                      ;0x51   
+        .db     B2                      ;0x52   
+        .db     B2                      ;0x53   
+        .db     B2                      ;0x54   
+        .db     B2                      ;0x55   
+        .db     B2                      ;0x56   
+        .db     B2                      ;0x57   
+        .db     B2                      ;0x58   
+        .db     B2                      ;0x59   
+        .db     B2                      ;0x5A   
+        .db     B2                      ;0x5B   
+        .db     B2                      ;0x5C   
+        .db     B2                      ;0x5D   
+        .db     B2                      ;0x5E   
+        .db     B2                      ;0x5F   
+        .db     B2                      ;0x60   
+        .db     B2                      ;0x61   
+        .db     B2                      ;0x62   
+        .db     B2                      ;0x63   
+        .db     B2                      ;0x64   
+        .db     B2                      ;0x65   
+        .db     B2                      ;0x66   
+        .db     B2                      ;0x67   
+        .db     B2                      ;0x68   
+        .db     B2                      ;0x69   
+        .db     B2                      ;0x6A   
+        .db     B2                      ;0x6B   
+        .db     B2                      ;0x6C   
+        .db     B2                      ;0x6D   
+        .db     B2                      ;0x6E   
+        .db     B2                      ;0x6F   
+        .db     B2                      ;0x70   
+        .db     B2                      ;0x71   
+        .db     B2                      ;0x72   
+        .db     B2                      ;0x73   
+        .db     B2                      ;0x74   
+        .db     B2                      ;0x75   
+        .db     B2                      ;0x76   
+        .db     B2                      ;0x77   
+        .db     B2                      ;0x78   
+        .db     B2                      ;0x79   
+        .db     B2                      ;0x7A   
+        .db     B2                      ;0x7B   
+        .db     B2                      ;0x7C   
+        .db     B2                      ;0x7D   
+        .db     B2                      ;0x7E   
+        .db     B2                      ;0x7F   
+        .db     B2                      ;0x80   
+        .db     B2                      ;0x81   
+        .db     B2                      ;0x82   
+        .db     B2                      ;0x83   
+        .db     B2                      ;0x84   
+        .db     B2                      ;0x85   
+        .db     B2                      ;0x86   
+        .db     B2                      ;0x87   
+        .db     B2                      ;0x88   
+        .db     B2                      ;0x89   
+        .db     B2                      ;0x8A   
+        .db     B2                      ;0x8B   
+        .db     B2                      ;0x8C   
+        .db     B2                      ;0x8D   
+        .db     B2                      ;0x8E   
+        .db     B2                      ;0x8F   
+        .db     B2                      ;0x90   
+        .db     B2                      ;0x91   
+        .db     B2                      ;0x92   
+        .db     B2                      ;0x93   
+        .db     B2                      ;0x94   
+        .db     B2                      ;0x95   
+        .db     B2                      ;0x96   
+        .db     B2                      ;0x97   
+        .db     B2                      ;0x98   
+        .db     B2                      ;0x99   
+        .db     B2                      ;0x9A   
+        .db     B2                      ;0x9B   
+        .db     B2                      ;0x9C   
+        .db     B2                      ;0x9D   
+        .db     B2                      ;0x9E   
+        .db     B2                      ;0x9F   
+        .db     B2                      ;0xA0   
+        .db     B2                      ;0xA1   
+        .db     B2                      ;0xA2   
+        .db     B2                      ;0xA3   
+        .db     B2                      ;0xA4   
+        .db     B2                      ;0xA5   
+        .db     B2                      ;0xA6   
+        .db     B2                      ;0xA7   
+        .db     B2                      ;0xA8   
+        .db     B2                      ;0xA9   
+        .db     B2                      ;0xAA   
+        .db     B2                      ;0xAB   
+        .db     B2                      ;0xAC   
+        .db     B2                      ;0xAD   
+        .db     B2                      ;0xAE   
+        .db     B2                      ;0xAF   
+        .db     B2                      ;0xB0   
+        .db     B2                      ;0xB2   
+        .db     B2                      ;0xB2   
+        .db     B2                      ;0xB2   
+        .db     B2                      ;0xB4   
+        .db     B2                      ;0xB5   
+        .db     B2                      ;0xB6   
+        .db     B2                      ;0xB7   
+        .db     B2                      ;0xB8   
+        .db     B2                      ;0xB9   
+        .db     B2                      ;0xBA   
+        .db     B2                      ;0xBB   
+        .db     B2                      ;0xBC   
+        .db     B2                      ;0xBD   
+        .db     B2                      ;0xBE   
+        .db     B2                      ;0xBF   
+        .db     B2                      ;0xC0   
+        .db     B2                      ;0xC1   
+        .db     B2                      ;0xC2   
+        .db     B2                      ;0xC3   
+        .db     B2                      ;0xC4   
+        .db     B2                      ;0xC5   
+        .db     B2                      ;0xC6   
+        .db     B2                      ;0xC7   
+        .db     B2                      ;0xC8   
+        .db     B2                      ;0xC9   
+        .db     B2                      ;0xCA   
+        .db     B0                      ;0xCB   
+        .db     B2                      ;0xCC   
+        .db     B2                      ;0xCD   
+        .db     B2                      ;0xCE   
+        .db     B2                      ;0xCF   
+        .db     B2                      ;0xD0   
+        .db     B2                      ;0xD1   
+        .db     B2                      ;0xD2   
+        .db     B2                      ;0xD3   
+        .db     B2                      ;0xD4   
+        .db     B2                      ;0xD5   
+        .db     B2                      ;0xD6   
+        .db     B2                      ;0xD7   
+        .db     B2                      ;0xD8   
+        .db     B2                      ;0xD9   
+        .db     B2                      ;0xDA   
+        .db     B2                      ;0xDB   
+        .db     B2                      ;0xDC   
+        .db     B0                      ;0xDD   
+        .db     B2                      ;0xDE   
+        .db     B2                      ;0xDF   
+        .db     B2                      ;0xE0   
+        .db     B2                      ;0xE1   
+        .db     B2                      ;0xE2   
+        .db     B2                      ;0xE3   
+        .db     B2                      ;0xE4   
+        .db     B2                      ;0xE5   
+        .db     B2                      ;0xE6   
+        .db     B2                      ;0xE7   
+        .db     B2                      ;0xE8   
+        .db     B2                      ;0xE9   
+        .db     B2                      ;0xEA   
+        .db     B2                      ;0xEB   
+        .db     B2                      ;0xEC   
+        .db     B0                      ;0xED   
+        .db     B2                      ;0xEE   
+        .db     B2                      ;0xEF   
+        .db     B2                      ;0xF0   
+        .db     B2                      ;0xF1   
+        .db     B2                      ;0xF2   
+        .db     B2                      ;0xF3   
+        .db     B2                      ;0xF4   
+        .db     B2                      ;0xF5   
+        .db     B2                      ;0xF6   
+        .db     B2                      ;0xF7   
+        .db     B2                      ;0xF8   
+        .db     B2                      ;0xF9   
+        .db     B2                      ;0xFA   
+        .db     B2                      ;0xFB   
+        .db     B2                      ;0xFC   
+        .db     B0                      ;0xFD   
+        .db     B2                      ;0xFE   
+        .db     B2                      ;0xFF   
+
+
         

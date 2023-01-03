@@ -1,4 +1,5 @@
-APP			=	app
+SRC			=	$(wildcard *.s)
+BIN			=	$(patsubst %.s,%.bin,$(SRC)) 
 ADDR		=	0x8000
 AS          =   sdasz80
 ASFLAGS     =   -xlos -g
@@ -12,15 +13,20 @@ L2FIX       =   sed '/-b _DATA = 0x8000/d'
 OBJCOPY     =   sdobjcopy
 RM 			= 	rm -f
 
-$(APP).bin: $(APP).ihx
+.PHONY: all
+all: 	$(BIN)
+
+%.bin: 	%.ihx
 	$(OBJCOPY) -I ihex -O binary $(basename $@).ihx $(basename $@).bin
 
-$(APP).ihx:	$(APP).rel
-	$(LD) $(LDFLAGS) -o $(APP).ihx $(APP).rel
-	$(L2FIX) $(APP).lk > $(APP).link
-	$(L2) $(L2FLAGS) $(APP).link
+.PRECIOUS: %.ihx
+%.ihx: 	%.rel
+	$(LD) $(LDFLAGS) -o $(basename $@).ihx $(basename $@).rel
+	$(L2FIX) $(basename $@).lk > $(basename $@).link
+	$(L2) $(L2FLAGS) $(basename $@).link
 
-$(APP).rel: $(APP).s
+.PRECIOUS: %.rel
+%.rel: 	%.s
 	$(AS) $(ASFLAGS) $(@F) $<
 
 .PHONY: clean
@@ -34,3 +40,4 @@ clean:
 	$(RM) *.link
 	$(RM) *.map
 	$(RM) *.noi
+	$(RM) *.bin

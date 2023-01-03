@@ -25,7 +25,7 @@ _compile:
         ld      (comp_start_block),hl   ; store start block
 comp_fetch:
         ld      a,(hl)                  ; first instruction
-        push    hl                      ; store block address
+        push    hl                      ; store instr. address
         ld      hl,#opcodes             ; table address to hl
         call    comp_table_fetch        ; fetch result to a
         push    af                      ; store translation
@@ -47,12 +47,15 @@ comp_fetch:
         ;; and store the location and the original code
         ;; to the tree...
 comp_done:
+        pop     af                      ; get converted value
+        pop     hl                      ; get latest opcode
+        
         ld      hl,(comp_end_block)
         ld      (hl),#RST30             ; insert RST 30 command
         push    hl
         ld      hl,(comp_start_block)
         push    hl
-        call    rb_insert_node
+        call    _rb_insert_node
         ret                             ; and return
 comp_next:
         pop     af                      ; get back
@@ -61,7 +64,7 @@ comp_next:
         inc     a                       ; +1
         ld      d,#0                    ; will use e of de
         ld      e,a                     ; de=a
-        pop     hl                      ; hl=stored block addr.
+        pop     hl                      ; hl=stored instr. addr.
         add     hl,de                   ; add instr.size
         jr      comp_fetch              ; next instruction
 
@@ -77,10 +80,29 @@ comp_table_fetch:
         add     hl,de                   ; hl points to result
         ld      a,(hl)                  ; to a
         ret
+        
 compile_ed:
         jr      comp_done
+        ;;  1. 0xCB instructions
+        ;;     if opcode starts with 0x?6 or 0x?e -> hl address
+        ;;     instruction len is always 2
 compile_cb:
-        jr      comp_done
+        pop     af                      ; clean
+        pop     hl                      ; get instr. address
+        inc     hl                      ; next byte after CB
+        ld      a,(hl)                  ; into a!
+        and     #0x0f                   ; clear high nibble
+        cp      #0x06
+        jr      z,comp_cb_hl
+        cp      #0x0e
+        jr      z,comp_cb_hl
+        ;; if we are here, it's standard instruction!
+        ld      a,#B1                   ; skip 2 bytes
+        push    hl
+        push    af
+        jr      comp_next
+comp_cb_hl:
+
 compile_dd:
         jr      comp_done
 compile_fd:
