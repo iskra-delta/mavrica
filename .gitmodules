@@ -1,3 +1,0 @@
-[submodule "lib/idp-udev"]
-	path = lib/idp-udev
-	url = https://github.com/tstih/idp-udev
