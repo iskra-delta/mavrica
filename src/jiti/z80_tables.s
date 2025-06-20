@@ -5,7 +5,7 @@
         ;; copyright (c) 2022 tomaz stih
         ;;
 	;; 20.06.2025   tstih
-        .modules z80_tables
+        .module z80_tables
 
         .globl  z80_table
         .globl  z80_ed_table 

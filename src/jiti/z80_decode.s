@@ -9,12 +9,19 @@
 
         .globl  decode
 
+        .globl  z80_table
+        .globl  z80_ed_table 
+        .globl  z80_cb_table
+        .globl  z80_dd_table       
+        .globl  z80_fd_table       
+        .globl  z80_ddcb_table
+        .globl  z80_fdcb_table
+
         .include "z80_consts.inc"
 
         .area	_CODE
-        ;; -----------------------------------------------------------
-        ;; decode - returns instruction type and length
-        ;; -----------------------------------------------------------
+        ;; --------------------------------------------------------------
+        ;; a<-decode(hl) - decode Z80 instruction
         ;; input(s):
         ;;      hl ... address of instruction to decode
         ;; output(s)      
@@ -34,24 +41,24 @@ decode:
         jr      z, is_fd
         ; unprefixed instruction
         ld      e, a
-        ld      d, 0
-        ld      hl, z80_table
+        ld      d, #0
+        ld      hl, #z80_table
         add     hl, de
         ld      a, (hl)
         ret
 is_cb:
         ld      a, (hl)                 ; fetch CB opcode
         ld      e, a
-        ld      d, 0
-        ld      hl, z80_cb_table
+        ld      d, #0
+        ld      hl, #z80_cb_table
         add     hl, de
         ld      a, (hl)
         ret
 is_ed:
         ld      a, (hl)                 ; fetch ED opcode
         ld      e, a
-        ld      d, 0
-        ld      hl, z80_ed_table
+        ld      d, #0
+        ld      hl, #z80_ed_table
         add     hl, de
         ld      a, (hl)
         ret
@@ -60,8 +67,8 @@ is_dd:
         cp      #0xcb                   ; check for DD CB opcode 
         jr      z, is_ddcb
         ld      e, a
-        ld      d, 0
-        ld      hl, z80_dd_table
+        ld      d, #0
+        ld      hl, #z80_dd_table
         add     hl, de
         ld      a, (hl)
         ret
@@ -70,8 +77,8 @@ is_fd:
         cp      #0xcb                   ; check for FD CB opcode
         jr      z, is_fdcb
         ld      e, a
-        ld      d, 0
-        ld      hl, z80_fd_table
+        ld      d, #0
+        ld      hl, #z80_fd_table
         add     hl, de
         ld      a, (hl)
         ret
@@ -79,8 +86,8 @@ is_ddcb:
         inc     hl                      ; skip displacement byte
         ld      a, (hl)                 ; CB opcode after DD CB d
         ld      e, a
-        ld      d, 0
-        ld      hl, z80_ddcb_table
+        ld      d, #0
+        ld      hl, #z80_ddcb_table
         add     hl, de
         ld      a, (hl)
         ret
@@ -88,8 +95,8 @@ is_fdcb:
         inc     hl                      ; skip displacement byte
         ld      a, (hl)                 ; CB opcode after FD CB d
         ld      e, a
-        ld      d, 0
-        ld      hl, z80_fdcb_table
+        ld      d, #0
+        ld      hl, #z80_fdcb_table
         add     hl, de
         ld      a, (hl)
         ret
