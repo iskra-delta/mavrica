@@ -1,0 +1,34 @@
+{
+  // Associate .s and .inc files with z80-asm language for syntax highlighting
+  "files.associations": {
+    "*.s": "z80-asm",
+    "*.inc": "z80-asm"
+  },
+
+  // Disable ALL formatting for Z80 files
+  "[z80-asm]": {
+    "editor.formatOnSave": false,
+    "editor.formatOnPaste": false,
+    "editor.formatOnType": false,
+    "editor.defaultFormatter": null,
+    "editor.tabSize": 8,
+    "editor.insertSpaces": false
+  },
+
+  // Also disable formatting for all other file types just in case
+  "[asm]": {
+    "editor.formatOnSave": false,
+    "editor.defaultFormatter": null
+  },
+  "[c]": {
+    "editor.formatOnSave": false,
+    "editor.defaultFormatter": null
+  },
+  "[cpp]": {
+    "editor.formatOnSave": false,
+    "editor.defaultFormatter": null
+  },
+
+  // Global fallback: disable formatting
+  "editor.formatOnSave": false
+}

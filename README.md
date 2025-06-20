@@ -2,46 +2,28 @@
 
 # mavrica
 
-The JIT ZX Spectrum emulator for the Iskra Delta Partner.
+A JIT-based ZX Spectrum emulator for the Iskra Delta Partner.
 
 ![Mavrica](docs/img/mavrica.jpg)
 
-# How does it work?
+## Current state
 
-Don't know yet. 
+The emulator loads a Z80 program at a configurable address and begins execution from a specified entry point. It uses a just-in-time technique that identifies basic blocks of code and replaces branch-related instructions (e.g. `JP`, `RET`, `JR`, etc.) with `RST 38h`.
 
-This is an experiment that uses just-in-time interpretation to implement a pseudo user-mode for the Z80 microprocessor that lacks separation of user and kernel modes. 
+When `RST 38h` is hit, a handler restores the original instruction, records the block boundaries, and transfers control to the next block.
 
- > **Disclaimer!** This is an experiment under development. There are known unknowns and unknown unknowns on its path. We will make necessary corrections as we discover new facts. If you are reading this in the middle of the experiment, don't assume we know what we're doing. 
+Each block is decoded and stored along with:
+- the start and end address
+- the original instruction replaced by `RST`
+- any metadata used for block tracking
 
-# What is the goal?
+Instruction decoding is done using a compact lookup table that returns instruction length and type (e.g., branch, call, port access).
 
-To gain *supervisor like* control over executed program on a Z80 microprocessor. The experiment is divided into four phases. **We are at phase I.** 
+All compiled blocks are stored in a table that enables quick detection of jumps into already decoded regions. Blocks are extended or merged when possible to reduce memory use.
 
-In **phase I.** we will gain control over all jumps in the program. In **phase II.** we will redirect all port reads and writes to our handlers. In **phase III.** we will hook memory read and write operations. And, finally, in **phase IV.** we will handle interrupts.
+This implementation is written entirely in Z80 assembly and is intended to run on real hardware.
 
-# Phase I. Taking control of the jumps
-
-The *JITI* (Just In Time Interpreter) installs the *RST8 handler* so that every time the `RST8` instruction is executed, it hands the reins over to our handler.
-
-The *JITI* then loads the *Z80* program to a provided load address and starts interpreting it at provided start address. It extracts the first "basic block" from the program by seeking for the first branch (`jp`, `jr`, `ret`, `djnz`, etc.) instruction.  
-
-Once it is found, its' first byte is replaced by the `RST8` call, and it is stored to a list of basic blocks. 
-
-Finally, a jump to the start address is executed yielding control to the *Z80* program we are interpreting.
-
-The program will execute until it hits the `RST8` instruction. At that point it will hand the control over to our *RST8 handler*. The handler will pick the address from the stack and search for it in the list of basic blocks. If found, then this block has already been compiled. In this case it will rewrite the `RST8` instruction with its original contents and jump to it continuing the program execution. 
-
- > The handler will always make sure no conditions (registers, flags) are affected.
-
-However if the basic block is not found, it will repeat the compilation process. It will compile the new block starting with target of the jump and ending with a branch instruction. And then jump to it. Eventually every basic block of the program will be compiled, and the program will run at almost native speed. The only instructions not compiled will be dynamic jumps (`jp (hl)`, `jp(ix)`, `jp(iy)`).
-
- > Neighbouring basic blocks will be merged to minimize allocated memory.
-
- ## Decoding Z80 instructions
-
- In phase I. we are interested in two aspects of every instruction. First is the instruction length, and second is identifying jumps. To minimize the effort of decoding the instruction we are going to use [tricks collected by Christian Dinu from various sources](http://www.z80.info/decoding.htm).
-
+---
 
 [language.url]:   https://en.wikipedia.org/wiki/ANSI_C
 [language.badge]: https://img.shields.io/badge/language-C-blue.svg
