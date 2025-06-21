@@ -17,7 +17,7 @@
 
         .include "z80_consts.inc"
 
-        .area   _CODE
+        .area   _DATA
         ;; table of basic opcodes for decoding 
         ;; instruction length and type.
 z80_table:
