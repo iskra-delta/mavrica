@@ -1,71 +1,60 @@
-# Makefile for Mavrica Z80 JIT project with linker command file and explicit start address
-
-# Directories
-SRC_DIR = src
-BUILD_DIR = build
-BIN_DIR = bin
+# We only allow compilation on linux!
+ifneq ($(shell uname), Linux)
+$(error OS must be Linux!)
+endif
 
 # Tools
 AS = sdasz80
 LD = sdld
 OBJCOPY = sdobjcopy
 
-# Source files
-SOURCES = $(shell find $(SRC_DIR) -type f -name '*.s')
-MAIN_SRC = $(shell find $(SRC_DIR) -type f -name 'main.s')
-OTHER_SRCS = $(filter-out $(MAIN_SRC), $(SOURCES))
+# Check if all required tools are on the system.
+REQUIRED = sdasz80 sdldz80 sdobjcopy
+K := $(foreach exec,$(REQUIRED),\
+    $(if $(shell which $(exec)),,$(error "$(exec) not found. Please install or add to path.")))
 
-# Output object file names
-MAIN_OBJ = $(patsubst $(SRC_DIR)/%.s, $(BUILD_DIR)/%.rel, $(MAIN_SRC))
-OTHER_OBJS = $(patsubst $(SRC_DIR)/%.s, $(BUILD_DIR)/%.rel, $(OTHER_SRCS))
-OBJECTS = $(MAIN_OBJ) $(OTHER_OBJS)
+# Directories
+SRC_DIR = src
+BUILD_DIR = build
+
+# All source files, with main.s explicitly first
+SOURCES := $(SRC_DIR)/main.s \
+           $(filter-out $(SRC_DIR)/main.s, $(shell find $(SRC_DIR) -type f -name '*.s'))
+OBJECTS := $(patsubst $(SRC_DIR)/%.s, $(BUILD_DIR)/%.rel, $(SOURCES))
 
 # Output files
-IHX = $(BUILD_DIR)/mavrica.ihx
-BIN = $(BIN_DIR)/mavrica.bin
-MAP = $(BUILD_DIR)/mavrica.map
-LINKFILE = $(BUILD_DIR)/linkfile.lk
+TARGET = $(BUILD_DIR)/mavrica
+LINKFILE = $(TARGET).lk
 
 # Flags
 ASFLAGS = -plosgff
 OBJCOPYFLAGS = -I ihex -O binary
 
 # Default target
-all: check_sources $(BIN)
-
-# Check if source files exist
-check_sources:
-	@if [ -z "$(SOURCES)" ]; then \
-		echo "Error: No .s files found in $(SRC_DIR)/ or its subdirectories"; \
-		exit 1; \
-	fi
-	@echo "Found sources: $(SOURCES)"
+all: $(TARGET).bin
 
 # Link object files using a linker command file
-$(IHX): $(OBJECTS)
+$(TARGET).ihx: $(OBJECTS)
 	@mkdir -p $(BUILD_DIR)
-	@echo "Creating linker command file..."
 	@echo "-b_CODE=0x0000" > $(LINKFILE)
 	@echo "-i" >> $(LINKFILE)
 	@echo "-m" >> $(LINKFILE)
+	@echo "-j" >> $(LINKFILE)
 	@echo "-o mavrica.ihx" >> $(LINKFILE)
 	@for obj in $(OBJECTS); do echo "$$(realpath --relative-to=$(BUILD_DIR) $$obj)" >> $(LINKFILE); done
-	@echo "Linking via linker command file..."
-	@cd $(BUILD_DIR) && $(LD) -f linkfile.lk
+	@cd $(BUILD_DIR) && $(LD) -f $(notdir $(LINKFILE))
 
 # Convert .ihx to .bin
-$(BIN): $(IHX)
-	@mkdir -p $(BIN_DIR)
+$(TARGET).bin: $(TARGET).ihx
 	$(OBJCOPY) $(OBJCOPYFLAGS) $< $@
 
 # Assemble .s files to .rel
 $(BUILD_DIR)/%.rel: $(SRC_DIR)/%.s
 	@mkdir -p $(dir $@)
-	@echo "Assembling: $<"
 	$(AS) $(ASFLAGS) -o $@ $<
 
 # Clean targets
 clean:
-	rm -rf $(BUILD_DIR) $(BIN_DIR)
+	rm -rf $(BUILD_DIR)
 
-.PHONY: all clean check_sources
+.PHONY: all clean

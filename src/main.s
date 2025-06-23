@@ -9,9 +9,9 @@
 	.area 	_CODE
 	.area 	_DATA
 
-	.globl start
+	.globl 	start
 
         .area	_CODE
 start:
-	ret
-	
+	di
+tarpit: jr 	tarpit 

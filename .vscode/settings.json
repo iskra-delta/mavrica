@@ -15,20 +15,6 @@
     "editor.insertSpaces": false
   },
 
-  // Also disable formatting for all other file types just in case
-  "[asm]": {
-    "editor.formatOnSave": false,
-    "editor.defaultFormatter": null
-  },
-  "[c]": {
-    "editor.formatOnSave": false,
-    "editor.defaultFormatter": null
-  },
-  "[cpp]": {
-    "editor.formatOnSave": false,
-    "editor.defaultFormatter": null
-  },
-
   // Global fallback: disable formatting
   "editor.formatOnSave": false
 }
