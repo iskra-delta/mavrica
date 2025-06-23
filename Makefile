@@ -27,7 +27,7 @@ TARGET = $(BUILD_DIR)/mavrica
 LINKFILE = $(TARGET).lk
 
 # Flags
-ASFLAGS = -plosgff
+ASFLAGS = -plosgf
 OBJCOPYFLAGS = -I ihex -O binary
 
 # Default target
@@ -40,7 +40,7 @@ $(TARGET).ihx: $(OBJECTS)
 	@echo "-i" >> $(LINKFILE)
 	@echo "-m" >> $(LINKFILE)
 	@echo "-j" >> $(LINKFILE)
-	@echo "-o mavrica.ihx" >> $(LINKFILE)
+	@echo "-o $(notdir $(TARGET)).ihx" >> $(LINKFILE)
 	@for obj in $(OBJECTS); do echo "$$(realpath --relative-to=$(BUILD_DIR) $$obj)" >> $(LINKFILE); done
 	@cd $(BUILD_DIR) && $(LD) -f $(notdir $(LINKFILE))
 
