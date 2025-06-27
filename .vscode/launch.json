@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug mavrica (Z80 JIT DAP)",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/build/mavrica.bin",
+      "preLaunchTask": "Build mavrica",
+      "debugServer": 4711,
+      "showDisassembly": "always",
+      "trace": "verbose"
+    }
+  ]
+}
