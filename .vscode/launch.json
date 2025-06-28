@@ -3,13 +3,12 @@
   "configurations": [
     {
       "name": "Debug mavrica (Z80 JIT DAP)",
-      "type": "cppdbg",
+      "type": "idp-gdb",
       "request": "launch",
       "program": "${workspaceFolder}/build/mavrica.bin",
       "preLaunchTask": "Build mavrica",
       "debugServer": 4711,
-      "showDisassembly": "always",
-      "trace": "verbose"
+      "showDisassembly": "always"
     }
   ]
 }
