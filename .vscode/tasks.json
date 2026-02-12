@@ -5,7 +5,7 @@
       "label": "Build mavrica",
       "type": "shell",
       "command": "make",
-      "args": [],
+      "args": ["TARGET=mavrica"],
       "group": {
         "kind": "build",
         "isDefault": true

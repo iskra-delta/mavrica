@@ -10,8 +10,15 @@
 	.area 	_DATA
 
 	.globl 	start
+        .globl  jit_init
+        .globl  jit_trap
 
         .area	_CODE
+        jp      start
+        .ds     0x35
+        jp      jit_trap
+
 start:
 	di
-tarpit: jr 	tarpit 
+        call    jit_init
+tarpit: jr 	tarpit

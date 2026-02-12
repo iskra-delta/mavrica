@@ -23,6 +23,17 @@ All compiled blocks are stored in a table that enables quick detection of jumps 
 
 This implementation is written entirely in Z80 assembly and is intended to run on real hardware.
 
+## JIT runtime API
+
+The core runtime now lives in `src/jitty/jit.s` and provides:
+
+- `jit_init` - clears block metadata
+- `jit_compile_block` - decodes one block and patches its exit to `RST 38h`
+- `jit_run` - compiles the entry block and transfers execution to guest code
+- `jit_trap` - `RST 38h` trap handler that emulates patched exits (`JP/JR/CALL/RET/RST`, including conditional forms), compiles the next block, and dispatches to it
+
+`src/main.s` also installs a jump at address `0x0038` so `RST 38h` reaches `jit_trap`.
+
 ---
 
 [language.url]:   https://en.wikipedia.org/wiki/ANSI_C

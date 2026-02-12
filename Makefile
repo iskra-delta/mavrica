@@ -1,60 +1,42 @@
-# We only allow compilation on linux!
-ifneq ($(shell uname), Linux)
-$(error OS must be Linux!)
-endif
+# ---------- project ----------
+TARGET ?= mavrica
 
-# Tools
-AS = sdasz80
-LD = sdld
-OBJCOPY = sdobjcopy
+# ---------- docker ----------
+# Prebuilt toolchain image (no local build step needed)
+DOCKER_IMAGE ?= wischner/sdcc-z80-zx-spectrum:latest
 
-# Check if all required tools are on the system.
-REQUIRED = sdasz80 sdldz80 sdobjcopy
-K := $(foreach exec,$(REQUIRED),\
-    $(if $(shell which $(exec)),,$(error "$(exec) not found. Please install or add to path.")))
+# Mount the repo read/write and run make in /work
+# Ensure SDCC is on PATH (image uses /opt/sdcc/bin)
+WORKDIR      := $(PWD)
+UID := $(shell id -u)
+GID := $(shell id -g)
 
-# Directories
-SRC_DIR = src
-BUILD_DIR = build
+DOCKER_RUN   = docker run --rm \
+               --user $(UID):$(GID) \
+               -v "$(WORKDIR):/work" -w /work \
+               $(DOCKER_IMAGE) env PATH=/opt/sdcc/bin:$$PATH
 
-# All source files, with main.s explicitly first
-SOURCES := $(SRC_DIR)/main.s \
-           $(filter-out $(SRC_DIR)/main.s, $(shell find $(SRC_DIR) -type f -name '*.s'))
-OBJECTS := $(patsubst $(SRC_DIR)/%.s, $(BUILD_DIR)/%.rel, $(SOURCES))
+# ---------- targets ----------
+# Default: build inside docker (artifacts -> ./build via src/Makefile)
+all: $(TARGET)
 
-# Output files
-TARGET = $(BUILD_DIR)/mavrica
-LINKFILE = $(TARGET).lk
+$(TARGET):
+	@echo "[host] building (inside docker) -> build/$(TARGET).bin"
+	@$(DOCKER_RUN) sh -c 'make -C src TARGET=$(TARGET) all'
 
-# Flags
-ASFLAGS = -plosgf
-OBJCOPYFLAGS = -I ihex -O binary
+build: $(TARGET)
 
-# Default target
-all: $(TARGET).bin
+rebuild:
+	@$(DOCKER_RUN) sh -c 'make -C src TARGET=$(TARGET) clean'
+	@$(MAKE) all
 
-# Link object files using a linker command file
-$(TARGET).ihx: $(OBJECTS)
-	@mkdir -p $(BUILD_DIR)
-	@echo "-b_CODE=0x0000" > $(LINKFILE)
-	@echo "-i" >> $(LINKFILE)
-	@echo "-m" >> $(LINKFILE)
-	@echo "-j" >> $(LINKFILE)
-	@echo "-o $(notdir $(TARGET)).ihx" >> $(LINKFILE)
-	@for obj in $(OBJECTS); do echo "$$(realpath --relative-to=$(BUILD_DIR) $$obj)" >> $(LINKFILE); done
-	@cd $(BUILD_DIR) && $(LD) -f $(notdir $(LINKFILE))
-
-# Convert .ihx to .bin
-$(TARGET).bin: $(TARGET).ihx
-	$(OBJCOPY) $(OBJCOPYFLAGS) $< $@
-
-# Assemble .s files to .rel
-$(BUILD_DIR)/%.rel: $(SRC_DIR)/%.s
-	@mkdir -p $(dir $@)
-	$(AS) $(ASFLAGS) -o $@ $<
-
-# Clean targets
 clean:
-	rm -rf $(BUILD_DIR)
+	@echo "[host] removing ./build"
+	@rm -rf build
 
-.PHONY: all clean
+# Optional convenience: pull the image explicitly (not required for build)
+docker-pull:
+	@echo "[host] pulling docker image $(DOCKER_IMAGE) ..."
+	@docker pull $(DOCKER_IMAGE)
+
+.PHONY: all $(TARGET) build rebuild clean docker-pull
